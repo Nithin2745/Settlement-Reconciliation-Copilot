@@ -1,0 +1,22 @@
+{
+  "name": "settlement-reconciliation-copilot",
+  "version": "0.1.0",
+  "description": "Razorpay AI Builder Internship 2026 — Track 4 (AI Finance Controller). Reconciles Razorpay settlements against a bank statement and internal ledger; deterministic rules handle certainty, an LLM proposes resolutions only for genuine exceptions.",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "capture-fixture": "node scripts/captureFixture.js",
+    "verify-adapter": "node scripts/verifyAdapter.js",
+    "verify-matcher": "node scripts/verifyMatcher.js",
+    "generate-synthetic": "node scripts/generateSyntheticData.js",
+    "verify-synthetic": "node scripts/verifySyntheticData.js"
+  },
+  "dependencies": {
+    "razorpay": "^2.9.5",
+    "dotenv": "^16.4.5"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}
