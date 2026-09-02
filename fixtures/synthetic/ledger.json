@@ -1,0 +1,1178 @@
+[
+  {
+    "externalId": "ledger_pay_SYN0000007",
+    "source": "ledger",
+    "amount": 86113,
+    "date": "2026-08-20T07:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000008",
+      "orderReceipt": "INV-2925",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000009",
+    "source": "ledger",
+    "amount": 212086,
+    "date": "2026-08-25T05:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000010",
+      "orderReceipt": "INV-3361",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000011",
+    "source": "ledger",
+    "amount": 250155,
+    "date": "2026-08-24T07:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000012",
+      "orderReceipt": "INV-5893",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000013",
+    "source": "ledger",
+    "amount": 152896,
+    "date": "2026-08-20T08:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000014",
+      "orderReceipt": "INV-2209",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000015",
+    "source": "ledger",
+    "amount": 160541,
+    "date": "2026-08-21T04:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000016",
+      "orderReceipt": "INV-0425",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000017",
+    "source": "ledger",
+    "amount": 357465,
+    "date": "2026-08-25T10:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000018",
+      "orderReceipt": "INV-4394",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000021",
+    "source": "ledger",
+    "amount": 492324,
+    "date": "2026-08-24T11:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000022",
+      "orderReceipt": "INV-8432",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000025",
+    "source": "ledger",
+    "amount": 301698,
+    "date": "2026-08-22T05:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000026",
+      "orderReceipt": "INV-8783",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000027",
+    "source": "ledger",
+    "amount": 469079,
+    "date": "2026-08-24T04:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000028",
+      "orderReceipt": "INV-8446",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000029",
+    "source": "ledger",
+    "amount": 14885,
+    "date": "2026-08-17T08:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000030",
+      "orderReceipt": "INV-7263",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000033",
+    "source": "ledger",
+    "amount": 149037,
+    "date": "2026-08-25T09:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000035",
+    "source": "ledger",
+    "amount": 149037,
+    "date": "2026-08-25T06:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000037",
+    "source": "ledger",
+    "amount": 215401,
+    "date": "2026-08-21T03:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000038",
+      "orderReceipt": "INV-1477",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000039",
+    "source": "ledger",
+    "amount": 267626,
+    "date": "2026-08-24T08:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000040",
+      "orderReceipt": "INV-4372",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000041",
+    "source": "ledger",
+    "amount": 78347,
+    "date": "2026-08-26T00:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000042",
+      "orderReceipt": "INV-8706",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000043",
+    "source": "ledger",
+    "amount": 33083,
+    "date": "2026-08-23T02:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000044",
+      "orderReceipt": "INV-7027",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000047",
+    "source": "ledger",
+    "amount": 135073,
+    "date": "2026-08-26T08:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000048",
+      "orderReceipt": "INV-5610",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000049",
+    "source": "ledger",
+    "amount": 201398,
+    "date": "2026-08-23T03:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000050",
+      "orderReceipt": "INV-8331",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000051",
+    "source": "ledger",
+    "amount": 472428,
+    "date": "2026-08-25T03:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000052",
+      "orderReceipt": "INV-5184",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000053",
+    "source": "ledger",
+    "amount": 344066,
+    "date": "2026-08-22T10:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000054",
+      "orderReceipt": "INV-3120",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000055",
+    "source": "ledger",
+    "amount": 345202,
+    "date": "2026-08-21T07:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000056",
+      "orderReceipt": "INV-9669",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000059",
+    "source": "ledger",
+    "amount": 419196,
+    "date": "2026-08-24T11:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000060",
+      "orderReceipt": "INV-6915",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000061",
+    "source": "ledger",
+    "amount": 480915,
+    "date": "2026-08-22T03:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000062",
+      "orderReceipt": "INV-6308",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000063",
+    "source": "ledger",
+    "amount": 424133,
+    "date": "2026-08-27T07:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000064",
+      "orderReceipt": "INV-4713",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000065",
+    "source": "ledger",
+    "amount": 447142,
+    "date": "2026-08-24T05:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000066",
+      "orderReceipt": "INV-4428",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000067",
+    "source": "ledger",
+    "amount": 26442,
+    "date": "2026-08-18T01:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000068",
+      "orderReceipt": "INV-1212",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000069",
+    "source": "ledger",
+    "amount": 343258,
+    "date": "2026-08-19T00:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000070",
+      "orderReceipt": "INV-2703",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000071",
+    "source": "ledger",
+    "amount": 428753,
+    "date": "2026-08-25T11:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000072",
+      "orderReceipt": "INV-8881",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000073",
+    "source": "ledger",
+    "amount": 242690,
+    "date": "2026-08-21T03:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000074",
+      "orderReceipt": "INV-7204",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000077",
+    "source": "ledger",
+    "amount": 34102,
+    "date": "2026-08-17T04:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000078",
+      "orderReceipt": "INV-2402",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000081",
+    "source": "ledger",
+    "amount": 45833,
+    "date": "2026-08-25T05:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000082",
+      "orderReceipt": "INV-8703",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000083",
+    "source": "ledger",
+    "amount": 476034,
+    "date": "2026-08-21T01:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000084",
+      "orderReceipt": "INV-5521",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000085",
+    "source": "ledger",
+    "amount": 386232,
+    "date": "2026-08-20T01:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000086",
+      "orderReceipt": "INV-6599",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000087",
+    "source": "ledger",
+    "amount": 106639,
+    "date": "2026-08-25T06:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000088",
+      "orderReceipt": "INV-7451",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000089",
+    "source": "ledger",
+    "amount": 28297,
+    "date": "2026-08-19T09:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000090",
+      "orderReceipt": "INV-7610",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000091",
+    "source": "ledger",
+    "amount": 230627,
+    "date": "2026-08-18T08:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000092",
+      "orderReceipt": "INV-5075",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000093",
+    "source": "ledger",
+    "amount": 497520,
+    "date": "2026-08-20T06:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000094",
+      "orderReceipt": "INV-5087",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000097",
+    "source": "ledger",
+    "amount": 261463,
+    "date": "2026-08-25T05:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000098",
+      "orderReceipt": "INV-4852",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000099",
+    "source": "ledger",
+    "amount": 22234,
+    "date": "2026-08-25T04:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000100",
+      "orderReceipt": "INV-4260",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000105",
+    "source": "ledger",
+    "amount": 6834,
+    "date": "2026-08-23T02:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000106",
+      "orderReceipt": "INV-3690",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000111",
+    "source": "ledger",
+    "amount": 9087,
+    "date": "2026-08-26T00:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000112",
+      "orderReceipt": "INV-5161",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000113",
+    "source": "ledger",
+    "amount": 279803,
+    "date": "2026-08-22T11:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000114",
+      "orderReceipt": "INV-6643",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000115",
+    "source": "ledger",
+    "amount": 406769,
+    "date": "2026-08-25T10:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000116",
+      "orderReceipt": "INV-1593",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000117",
+    "source": "ledger",
+    "amount": 437773,
+    "date": "2026-08-25T10:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000118",
+      "orderReceipt": "INV-3276",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000121",
+    "source": "ledger",
+    "amount": 73321,
+    "date": "2026-08-19T08:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000122",
+      "orderReceipt": "INV-3743",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000123",
+    "source": "ledger",
+    "amount": 207726,
+    "date": "2026-08-26T00:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000125",
+    "source": "ledger",
+    "amount": 207726,
+    "date": "2026-08-25T11:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000129",
+    "source": "ledger",
+    "amount": 299303,
+    "date": "2026-08-18T08:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000130",
+      "orderReceipt": "INV-7954",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000131",
+    "source": "ledger",
+    "amount": 198996,
+    "date": "2026-08-23T02:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000132",
+      "orderReceipt": "INV-9765",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000133",
+    "source": "ledger",
+    "amount": 355580,
+    "date": "2026-08-22T07:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000134",
+      "orderReceipt": "INV-6302",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000135",
+    "source": "ledger",
+    "amount": 5071,
+    "date": "2026-08-20T01:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000136",
+      "orderReceipt": "INV-9095",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000139",
+    "source": "ledger",
+    "amount": 176118,
+    "date": "2026-08-19T09:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000140",
+      "orderReceipt": "INV-6526",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000143",
+    "source": "ledger",
+    "amount": 367648,
+    "date": "2026-08-20T12:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000144",
+      "orderReceipt": "INV-9433",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000145",
+    "source": "ledger",
+    "amount": 172421,
+    "date": "2026-08-24T12:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000146",
+      "orderReceipt": "INV-8912",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000147",
+    "source": "ledger",
+    "amount": 455062,
+    "date": "2026-08-23T11:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000148",
+      "orderReceipt": "INV-2333",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000149",
+    "source": "ledger",
+    "amount": 491418,
+    "date": "2026-08-22T12:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000150",
+      "orderReceipt": "INV-0213",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000151",
+    "source": "ledger",
+    "amount": 494419,
+    "date": "2026-08-21T12:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000152",
+      "orderReceipt": "INV-2239",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000155",
+    "source": "ledger",
+    "amount": 92238,
+    "date": "2026-08-22T11:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000156",
+      "orderReceipt": "INV-6591",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000157",
+    "source": "ledger",
+    "amount": 295723,
+    "date": "2026-08-25T05:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000158",
+      "orderReceipt": "INV-6309",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000159",
+    "source": "ledger",
+    "amount": 331847,
+    "date": "2026-08-23T05:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000160",
+      "orderReceipt": "INV-1731",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000161",
+    "source": "ledger",
+    "amount": 166652,
+    "date": "2026-08-20T01:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000162",
+      "orderReceipt": "INV-6490",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000163",
+    "source": "ledger",
+    "amount": 232456,
+    "date": "2026-08-25T01:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000164",
+      "orderReceipt": "INV-7084",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000165",
+    "source": "ledger",
+    "amount": 173401,
+    "date": "2026-08-23T08:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000166",
+      "orderReceipt": "INV-4678",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000167",
+    "source": "ledger",
+    "amount": 429955,
+    "date": "2026-08-26T06:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000168",
+      "orderReceipt": "INV-1743",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000169",
+    "source": "ledger",
+    "amount": 377266,
+    "date": "2026-08-25T05:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000170",
+      "orderReceipt": "INV-3761",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000171",
+    "source": "ledger",
+    "amount": 288794,
+    "date": "2026-08-19T00:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000172",
+      "orderReceipt": "INV-8574",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000173",
+    "source": "ledger",
+    "amount": 263756,
+    "date": "2026-08-23T12:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000174",
+      "orderReceipt": "INV-5259",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000175",
+    "source": "ledger",
+    "amount": 450893,
+    "date": "2026-08-26T01:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000176",
+      "orderReceipt": "INV-2252",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000177",
+    "source": "ledger",
+    "amount": 223122,
+    "date": "2026-08-19T04:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000178",
+      "orderReceipt": "INV-3361",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000179",
+    "source": "ledger",
+    "amount": 441235,
+    "date": "2026-08-20T07:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000180",
+      "orderReceipt": "INV-4925",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000181",
+    "source": "ledger",
+    "amount": 287974,
+    "date": "2026-08-23T12:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000182",
+      "orderReceipt": "INV-2217",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000183",
+    "source": "ledger",
+    "amount": 81506,
+    "date": "2026-08-18T01:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000184",
+      "orderReceipt": "INV-3390",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000185",
+    "source": "ledger",
+    "amount": 228451,
+    "date": "2026-08-22T12:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000186",
+      "orderReceipt": "INV-7259",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000187",
+    "source": "ledger",
+    "amount": 375940,
+    "date": "2026-08-19T07:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000188",
+      "orderReceipt": "INV-2640",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000191",
+    "source": "ledger",
+    "amount": 422156,
+    "date": "2026-08-21T12:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000192",
+      "orderReceipt": "INV-4510",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000193",
+    "source": "ledger",
+    "amount": 200442,
+    "date": "2026-08-20T04:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000194",
+      "orderReceipt": "INV-4819",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000195",
+    "source": "ledger",
+    "amount": 481347,
+    "date": "2026-08-24T02:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000196",
+      "orderReceipt": "INV-1245",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000197",
+    "source": "ledger",
+    "amount": 488050,
+    "date": "2026-08-25T11:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000198",
+      "orderReceipt": "INV-2459",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000199",
+    "source": "ledger",
+    "amount": 109563,
+    "date": "2026-08-27T11:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000201",
+    "source": "ledger",
+    "amount": 109563,
+    "date": "2026-08-20T12:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000203",
+    "source": "ledger",
+    "amount": 319259,
+    "date": "2026-08-26T10:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000204",
+      "orderReceipt": "INV-0148",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000205",
+    "source": "ledger",
+    "amount": 265150,
+    "date": "2026-08-20T01:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000206",
+      "orderReceipt": "INV-2744",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000209",
+    "source": "ledger",
+    "amount": 39122,
+    "date": "2026-08-23T07:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000210",
+      "orderReceipt": "INV-6003",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000211",
+    "source": "ledger",
+    "amount": 36661,
+    "date": "2026-08-24T08:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000212",
+      "orderReceipt": "INV-6239",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000213",
+    "source": "ledger",
+    "amount": 116062,
+    "date": "2026-08-23T01:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000214",
+      "orderReceipt": "INV-9387",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000215",
+    "source": "ledger",
+    "amount": 305220,
+    "date": "2026-08-24T07:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000216",
+      "orderReceipt": "INV-4266",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000217",
+    "source": "ledger",
+    "amount": 217370,
+    "date": "2026-08-24T01:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000218",
+      "orderReceipt": "INV-6224",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000219",
+    "source": "ledger",
+    "amount": 390193,
+    "date": "2026-08-21T05:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000220",
+      "orderReceipt": "INV-6531",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000221",
+    "source": "ledger",
+    "amount": 489559,
+    "date": "2026-08-28T05:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000222",
+      "orderReceipt": "INV-9239",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000223",
+    "source": "ledger",
+    "amount": 250815,
+    "date": "2026-08-26T03:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000224",
+      "orderReceipt": "INV-4932",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000225",
+    "source": "ledger",
+    "amount": 363262,
+    "date": "2026-08-21T12:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000226",
+      "orderReceipt": "INV-0619",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000227",
+    "source": "ledger",
+    "amount": 151892,
+    "date": "2026-08-22T04:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000228",
+      "orderReceipt": "INV-2698",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000229",
+    "source": "ledger",
+    "amount": 356046,
+    "date": "2026-08-21T03:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000230",
+      "orderReceipt": "INV-0383",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000231",
+    "source": "ledger",
+    "amount": 277019,
+    "date": "2026-08-23T04:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000232",
+      "orderReceipt": "INV-6428",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000233",
+    "source": "ledger",
+    "amount": 392007,
+    "date": "2026-08-26T09:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000234",
+      "orderReceipt": "INV-6660",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000235",
+    "source": "ledger",
+    "amount": 491057,
+    "date": "2026-08-20T05:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000236",
+      "orderReceipt": "INV-4112",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000237",
+    "source": "ledger",
+    "amount": 324041,
+    "date": "2026-08-24T07:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000238",
+      "orderReceipt": "INV-9884",
+      "narration": null
+    }
+  },
+  {
+    "externalId": "ledger_pay_SYN0000239",
+    "source": "ledger",
+    "amount": 299437,
+    "date": "2026-08-24T05:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": "order_SYN0000240",
+      "orderReceipt": "INV-8550",
+      "narration": null
+    }
+  }
+]

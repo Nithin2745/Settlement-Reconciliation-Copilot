@@ -1,0 +1,1275 @@
+{
+  "seed": 42,
+  "size": 120,
+  "caseTypeCounts": {
+    "BLIND_PAYMENT": 14,
+    "CLEAN": 55,
+    "AMOUNT_MISMATCH": 10,
+    "ORPHAN": 8,
+    "AMBIGUOUS": 6,
+    "TIMING_LAG": 18,
+    "BULK_SETTLEMENT": 9
+  },
+  "records": {
+    "pay_SYN0000001": {
+      "caseType": "BLIND_PAYMENT",
+      "needsAiReview": true,
+      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000001"
+      ],
+      "trueLedgerExternalIds": []
+    },
+    "pay_SYN0000003": {
+      "caseType": "BLIND_PAYMENT",
+      "needsAiReview": true,
+      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000003"
+      ],
+      "trueLedgerExternalIds": []
+    },
+    "pay_SYN0000005": {
+      "caseType": "BLIND_PAYMENT",
+      "needsAiReview": true,
+      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000005"
+      ],
+      "trueLedgerExternalIds": []
+    },
+    "pay_SYN0000007": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000007"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000007"
+      ]
+    },
+    "pay_SYN0000009": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000009"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000009"
+      ]
+    },
+    "pay_SYN0000011": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000011"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000011"
+      ]
+    },
+    "pay_SYN0000013": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000013"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000013"
+      ]
+    },
+    "pay_SYN0000015": {
+      "caseType": "AMOUNT_MISMATCH",
+      "needsAiReview": true,
+      "note": "Settlement credit corrupted by 267p (waterfallOk=false); bank reflects the true net, so it can't be reference- or amount-matched.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000015"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000015"
+      ]
+    },
+    "pay_SYN0000017": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000017"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000017"
+      ]
+    },
+    "pay_SYN0000019": {
+      "caseType": "BLIND_PAYMENT",
+      "needsAiReview": true,
+      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000019"
+      ],
+      "trueLedgerExternalIds": []
+    },
+    "pay_SYN0000021": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000021"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000021"
+      ]
+    },
+    "pay_SYN0000023": {
+      "caseType": "BLIND_PAYMENT",
+      "needsAiReview": true,
+      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000023"
+      ],
+      "trueLedgerExternalIds": []
+    },
+    "pay_SYN0000025": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000025"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000025"
+      ]
+    },
+    "pay_SYN0000027": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000027"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000027"
+      ]
+    },
+    "pay_SYN0000029": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000029"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000029"
+      ]
+    },
+    "pay_SYN0000031": {
+      "caseType": "ORPHAN",
+      "needsAiReview": false,
+      "note": "True orphan: internal transfer with no customer-facing counterpart on either side. Correctly UNRESOLVED; not an LLM failure.",
+      "trueBankExternalIds": [],
+      "trueLedgerExternalIds": []
+    },
+    "pay_SYN0000033": {
+      "caseType": "AMBIGUOUS",
+      "needsAiReview": true,
+      "note": "Part of an identical-amount pair with no references -- deterministic engine correctly refuses to guess (AMBIGUOUS_PROXIMITY on both sides).",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000033"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000033"
+      ]
+    },
+    "pay_SYN0000035": {
+      "caseType": "AMBIGUOUS",
+      "needsAiReview": true,
+      "note": "Part of an identical-amount pair with no references -- deterministic engine correctly refuses to guess (AMBIGUOUS_PROXIMITY on both sides).",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000035"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000035"
+      ]
+    },
+    "pay_SYN0000037": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000037"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000037"
+      ]
+    },
+    "pay_SYN0000039": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000039"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000039"
+      ]
+    },
+    "pay_SYN0000041": {
+      "caseType": "AMOUNT_MISMATCH",
+      "needsAiReview": true,
+      "note": "Settlement credit corrupted by -94p (waterfallOk=false); bank reflects the true net, so it can't be reference- or amount-matched.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000041"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000041"
+      ]
+    },
+    "pay_SYN0000043": {
+      "caseType": "TIMING_LAG",
+      "needsAiReview": false,
+      "note": "Bank credit lagged 3d and UTR wasn't echoed -> resolved by amount+date proximity, not exact match.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000043"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000043"
+      ]
+    },
+    "pay_SYN0000045": {
+      "caseType": "BLIND_PAYMENT",
+      "needsAiReview": true,
+      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000045"
+      ],
+      "trueLedgerExternalIds": []
+    },
+    "pay_SYN0000047": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000047"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000047"
+      ]
+    },
+    "pay_SYN0000049": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000049"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000049"
+      ]
+    },
+    "pay_SYN0000051": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000051"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000051"
+      ]
+    },
+    "pay_SYN0000053": {
+      "caseType": "TIMING_LAG",
+      "needsAiReview": false,
+      "note": "Bank credit lagged 2d and UTR wasn't echoed -> resolved by amount+date proximity, not exact match.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000053"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000053"
+      ]
+    },
+    "pay_SYN0000055": {
+      "caseType": "TIMING_LAG",
+      "needsAiReview": false,
+      "note": "Bank credit lagged 1d and UTR wasn't echoed -> resolved by amount+date proximity, not exact match.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000055"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000055"
+      ]
+    },
+    "pay_SYN0000057": {
+      "caseType": "BLIND_PAYMENT",
+      "needsAiReview": true,
+      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000057"
+      ],
+      "trueLedgerExternalIds": []
+    },
+    "pay_SYN0000059": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000059"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000059"
+      ]
+    },
+    "pay_SYN0000061": {
+      "caseType": "AMOUNT_MISMATCH",
+      "needsAiReview": true,
+      "note": "Settlement credit corrupted by 372p (waterfallOk=false); bank reflects the true net, so it can't be reference- or amount-matched.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000061"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000061"
+      ]
+    },
+    "pay_SYN0000063": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000063"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000063"
+      ]
+    },
+    "pay_SYN0000065": {
+      "caseType": "TIMING_LAG",
+      "needsAiReview": false,
+      "note": "Bank credit lagged 2d and UTR wasn't echoed -> resolved by amount+date proximity, not exact match.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000065"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000065"
+      ]
+    },
+    "pay_SYN0000067": {
+      "caseType": "TIMING_LAG",
+      "needsAiReview": false,
+      "note": "Bank credit lagged 3d and UTR wasn't echoed -> resolved by amount+date proximity, not exact match.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000067"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000067"
+      ]
+    },
+    "pay_SYN0000069": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000069"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000069"
+      ]
+    },
+    "pay_SYN0000071": {
+      "caseType": "AMOUNT_MISMATCH",
+      "needsAiReview": true,
+      "note": "Settlement credit corrupted by 332p (waterfallOk=false); bank reflects the true net, so it can't be reference- or amount-matched.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000071"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000071"
+      ]
+    },
+    "pay_SYN0000073": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000073"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000073"
+      ]
+    },
+    "pay_SYN0000075": {
+      "caseType": "ORPHAN",
+      "needsAiReview": false,
+      "note": "True orphan: internal transfer with no customer-facing counterpart on either side. Correctly UNRESOLVED; not an LLM failure.",
+      "trueBankExternalIds": [],
+      "trueLedgerExternalIds": []
+    },
+    "pay_SYN0000077": {
+      "caseType": "AMOUNT_MISMATCH",
+      "needsAiReview": true,
+      "note": "Settlement credit corrupted by -312p (waterfallOk=false); bank reflects the true net, so it can't be reference- or amount-matched.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000077"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000077"
+      ]
+    },
+    "pay_SYN0000079": {
+      "caseType": "BLIND_PAYMENT",
+      "needsAiReview": true,
+      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000079"
+      ],
+      "trueLedgerExternalIds": []
+    },
+    "pay_SYN0000081": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000081"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000081"
+      ]
+    },
+    "pay_SYN0000083": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000083"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000083"
+      ]
+    },
+    "pay_SYN0000085": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000085"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000085"
+      ]
+    },
+    "pay_SYN0000087": {
+      "caseType": "AMOUNT_MISMATCH",
+      "needsAiReview": true,
+      "note": "Settlement credit corrupted by 311p (waterfallOk=false); bank reflects the true net, so it can't be reference- or amount-matched.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000087"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000087"
+      ]
+    },
+    "pay_SYN0000089": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000089"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000089"
+      ]
+    },
+    "pay_SYN0000091": {
+      "caseType": "AMOUNT_MISMATCH",
+      "needsAiReview": true,
+      "note": "Settlement credit corrupted by 89p (waterfallOk=false); bank reflects the true net, so it can't be reference- or amount-matched.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000091"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000091"
+      ]
+    },
+    "pay_SYN0000093": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000093"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000093"
+      ]
+    },
+    "pay_SYN0000095": {
+      "caseType": "ORPHAN",
+      "needsAiReview": false,
+      "note": "True orphan: internal transfer with no customer-facing counterpart on either side. Correctly UNRESOLVED; not an LLM failure.",
+      "trueBankExternalIds": [],
+      "trueLedgerExternalIds": []
+    },
+    "pay_SYN0000097": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000097"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000097"
+      ]
+    },
+    "pay_SYN0000099": {
+      "caseType": "TIMING_LAG",
+      "needsAiReview": false,
+      "note": "Bank credit lagged 1d and UTR wasn't echoed -> resolved by amount+date proximity, not exact match.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000099"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000099"
+      ]
+    },
+    "pay_SYN0000101": {
+      "caseType": "ORPHAN",
+      "needsAiReview": false,
+      "note": "True orphan: internal transfer with no customer-facing counterpart on either side. Correctly UNRESOLVED; not an LLM failure.",
+      "trueBankExternalIds": [],
+      "trueLedgerExternalIds": []
+    },
+    "pay_SYN0000103": {
+      "caseType": "BLIND_PAYMENT",
+      "needsAiReview": true,
+      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000103"
+      ],
+      "trueLedgerExternalIds": []
+    },
+    "pay_SYN0000105": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000105"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000105"
+      ]
+    },
+    "pay_SYN0000107": {
+      "caseType": "ORPHAN",
+      "needsAiReview": false,
+      "note": "True orphan: internal transfer with no customer-facing counterpart on either side. Correctly UNRESOLVED; not an LLM failure.",
+      "trueBankExternalIds": [],
+      "trueLedgerExternalIds": []
+    },
+    "pay_SYN0000109": {
+      "caseType": "BLIND_PAYMENT",
+      "needsAiReview": true,
+      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000109"
+      ],
+      "trueLedgerExternalIds": []
+    },
+    "pay_SYN0000111": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000111"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000111"
+      ]
+    },
+    "pay_SYN0000113": {
+      "caseType": "TIMING_LAG",
+      "needsAiReview": false,
+      "note": "Bank credit lagged 3d and UTR wasn't echoed -> resolved by amount+date proximity, not exact match.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000113"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000113"
+      ]
+    },
+    "pay_SYN0000115": {
+      "caseType": "AMOUNT_MISMATCH",
+      "needsAiReview": true,
+      "note": "Settlement credit corrupted by 65p (waterfallOk=false); bank reflects the true net, so it can't be reference- or amount-matched.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000115"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000115"
+      ]
+    },
+    "pay_SYN0000117": {
+      "caseType": "TIMING_LAG",
+      "needsAiReview": false,
+      "note": "Bank credit lagged 3d and UTR wasn't echoed -> resolved by amount+date proximity, not exact match.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000117"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000117"
+      ]
+    },
+    "pay_SYN0000119": {
+      "caseType": "ORPHAN",
+      "needsAiReview": false,
+      "note": "True orphan: internal transfer with no customer-facing counterpart on either side. Correctly UNRESOLVED; not an LLM failure.",
+      "trueBankExternalIds": [],
+      "trueLedgerExternalIds": []
+    },
+    "pay_SYN0000121": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000121"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000121"
+      ]
+    },
+    "pay_SYN0000123": {
+      "caseType": "AMBIGUOUS",
+      "needsAiReview": true,
+      "note": "Part of an identical-amount pair with no references -- deterministic engine correctly refuses to guess (AMBIGUOUS_PROXIMITY on both sides).",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000123"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000123"
+      ]
+    },
+    "pay_SYN0000125": {
+      "caseType": "AMBIGUOUS",
+      "needsAiReview": true,
+      "note": "Part of an identical-amount pair with no references -- deterministic engine correctly refuses to guess (AMBIGUOUS_PROXIMITY on both sides).",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000125"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000125"
+      ]
+    },
+    "pay_SYN0000127": {
+      "caseType": "ORPHAN",
+      "needsAiReview": false,
+      "note": "True orphan: internal transfer with no customer-facing counterpart on either side. Correctly UNRESOLVED; not an LLM failure.",
+      "trueBankExternalIds": [],
+      "trueLedgerExternalIds": []
+    },
+    "pay_SYN0000129": {
+      "caseType": "TIMING_LAG",
+      "needsAiReview": false,
+      "note": "Bank credit lagged 3d and UTR wasn't echoed -> resolved by amount+date proximity, not exact match.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000129"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000129"
+      ]
+    },
+    "pay_SYN0000131": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000131"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000131"
+      ]
+    },
+    "pay_SYN0000133": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000133"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000133"
+      ]
+    },
+    "pay_SYN0000135": {
+      "caseType": "TIMING_LAG",
+      "needsAiReview": false,
+      "note": "Bank credit lagged 2d and UTR wasn't echoed -> resolved by amount+date proximity, not exact match.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000135"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000135"
+      ]
+    },
+    "pay_SYN0000137": {
+      "caseType": "ORPHAN",
+      "needsAiReview": false,
+      "note": "True orphan: internal transfer with no customer-facing counterpart on either side. Correctly UNRESOLVED; not an LLM failure.",
+      "trueBankExternalIds": [],
+      "trueLedgerExternalIds": []
+    },
+    "pay_SYN0000139": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000139"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000139"
+      ]
+    },
+    "pay_SYN0000141": {
+      "caseType": "BLIND_PAYMENT",
+      "needsAiReview": true,
+      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000141"
+      ],
+      "trueLedgerExternalIds": []
+    },
+    "pay_SYN0000143": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000143"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000143"
+      ]
+    },
+    "pay_SYN0000145": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000145"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000145"
+      ]
+    },
+    "pay_SYN0000147": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000147"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000147"
+      ]
+    },
+    "pay_SYN0000149": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000149"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000149"
+      ]
+    },
+    "pay_SYN0000151": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000151"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000151"
+      ]
+    },
+    "pay_SYN0000153": {
+      "caseType": "BLIND_PAYMENT",
+      "needsAiReview": true,
+      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000153"
+      ],
+      "trueLedgerExternalIds": []
+    },
+    "pay_SYN0000155": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000155"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000155"
+      ]
+    },
+    "pay_SYN0000157": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000157"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000157"
+      ]
+    },
+    "pay_SYN0000159": {
+      "caseType": "TIMING_LAG",
+      "needsAiReview": false,
+      "note": "Bank credit lagged 2d and UTR wasn't echoed -> resolved by amount+date proximity, not exact match.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000159"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000159"
+      ]
+    },
+    "pay_SYN0000161": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000161"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000161"
+      ]
+    },
+    "pay_SYN0000163": {
+      "caseType": "TIMING_LAG",
+      "needsAiReview": false,
+      "note": "Bank credit lagged 2d and UTR wasn't echoed -> resolved by amount+date proximity, not exact match.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000163"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000163"
+      ]
+    },
+    "pay_SYN0000165": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000165"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000165"
+      ]
+    },
+    "pay_SYN0000167": {
+      "caseType": "BULK_SETTLEMENT",
+      "needsAiReview": true,
+      "note": "Bulk settlement group of 3: this record claimed the shared combined bank credit via EXACT_UTR.",
+      "trueBankExternalIds": [
+        "bank_bulk_bulk1787270400syn346"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000167"
+      ]
+    },
+    "pay_SYN0000169": {
+      "caseType": "BULK_SETTLEMENT",
+      "needsAiReview": true,
+      "note": "Bulk settlement group of 3: UTR shared with 2 sibling(s); the combined bank credit was already claimed, so this record is left PARTIAL_LEDGER_ONLY -- the known 1:1-simplification limitation from Day 2, reproduced honestly rather than special-cased away.",
+      "trueBankExternalIds": [
+        "bank_bulk_bulk1787270400syn346"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000169"
+      ]
+    },
+    "pay_SYN0000171": {
+      "caseType": "BULK_SETTLEMENT",
+      "needsAiReview": true,
+      "note": "Bulk settlement group of 3: UTR shared with 2 sibling(s); the combined bank credit was already claimed, so this record is left PARTIAL_LEDGER_ONLY -- the known 1:1-simplification limitation from Day 2, reproduced honestly rather than special-cased away.",
+      "trueBankExternalIds": [
+        "bank_bulk_bulk1787270400syn346"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000171"
+      ]
+    },
+    "pay_SYN0000173": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000173"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000173"
+      ]
+    },
+    "pay_SYN0000175": {
+      "caseType": "AMOUNT_MISMATCH",
+      "needsAiReview": true,
+      "note": "Settlement credit corrupted by -367p (waterfallOk=false); bank reflects the true net, so it can't be reference- or amount-matched.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000175"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000175"
+      ]
+    },
+    "pay_SYN0000177": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000177"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000177"
+      ]
+    },
+    "pay_SYN0000179": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000179"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000179"
+      ]
+    },
+    "pay_SYN0000181": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000181"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000181"
+      ]
+    },
+    "pay_SYN0000183": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000183"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000183"
+      ]
+    },
+    "pay_SYN0000185": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000185"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000185"
+      ]
+    },
+    "pay_SYN0000187": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000187"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000187"
+      ]
+    },
+    "pay_SYN0000189": {
+      "caseType": "BLIND_PAYMENT",
+      "needsAiReview": true,
+      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000189"
+      ],
+      "trueLedgerExternalIds": []
+    },
+    "pay_SYN0000191": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000191"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000191"
+      ]
+    },
+    "pay_SYN0000193": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000193"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000193"
+      ]
+    },
+    "pay_SYN0000195": {
+      "caseType": "TIMING_LAG",
+      "needsAiReview": false,
+      "note": "Bank credit lagged 3d and UTR wasn't echoed -> resolved by amount+date proximity, not exact match.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000195"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000195"
+      ]
+    },
+    "pay_SYN0000197": {
+      "caseType": "TIMING_LAG",
+      "needsAiReview": false,
+      "note": "Bank credit lagged 3d and UTR wasn't echoed -> resolved by amount+date proximity, not exact match.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000197"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000197"
+      ]
+    },
+    "pay_SYN0000199": {
+      "caseType": "AMBIGUOUS",
+      "needsAiReview": true,
+      "note": "Part of an identical-amount pair with no references -- deterministic engine correctly refuses to guess (AMBIGUOUS_PROXIMITY on both sides).",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000199"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000199"
+      ]
+    },
+    "pay_SYN0000201": {
+      "caseType": "AMBIGUOUS",
+      "needsAiReview": true,
+      "note": "Part of an identical-amount pair with no references -- deterministic engine correctly refuses to guess (AMBIGUOUS_PROXIMITY on both sides).",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000201"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000201"
+      ]
+    },
+    "pay_SYN0000203": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000203"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000203"
+      ]
+    },
+    "pay_SYN0000205": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000205"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000205"
+      ]
+    },
+    "pay_SYN0000207": {
+      "caseType": "BLIND_PAYMENT",
+      "needsAiReview": true,
+      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000207"
+      ],
+      "trueLedgerExternalIds": []
+    },
+    "pay_SYN0000209": {
+      "caseType": "BULK_SETTLEMENT",
+      "needsAiReview": true,
+      "note": "Bulk settlement group of 3: this record claimed the shared combined bank credit via EXACT_UTR.",
+      "trueBankExternalIds": [
+        "bank_bulk_bulk1787270400syn360"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000209"
+      ]
+    },
+    "pay_SYN0000211": {
+      "caseType": "BULK_SETTLEMENT",
+      "needsAiReview": true,
+      "note": "Bulk settlement group of 3: UTR shared with 2 sibling(s); the combined bank credit was already claimed, so this record is left PARTIAL_LEDGER_ONLY -- the known 1:1-simplification limitation from Day 2, reproduced honestly rather than special-cased away.",
+      "trueBankExternalIds": [
+        "bank_bulk_bulk1787270400syn360"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000211"
+      ]
+    },
+    "pay_SYN0000213": {
+      "caseType": "BULK_SETTLEMENT",
+      "needsAiReview": true,
+      "note": "Bulk settlement group of 3: UTR shared with 2 sibling(s); the combined bank credit was already claimed, so this record is left PARTIAL_LEDGER_ONLY -- the known 1:1-simplification limitation from Day 2, reproduced honestly rather than special-cased away.",
+      "trueBankExternalIds": [
+        "bank_bulk_bulk1787270400syn360"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000213"
+      ]
+    },
+    "pay_SYN0000215": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000215"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000215"
+      ]
+    },
+    "pay_SYN0000217": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000217"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000217"
+      ]
+    },
+    "pay_SYN0000219": {
+      "caseType": "BULK_SETTLEMENT",
+      "needsAiReview": true,
+      "note": "Bulk settlement group of 3: this record claimed the shared combined bank credit via EXACT_UTR.",
+      "trueBankExternalIds": [
+        "bank_bulk_bulk1787788800syn854"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000219"
+      ]
+    },
+    "pay_SYN0000221": {
+      "caseType": "BULK_SETTLEMENT",
+      "needsAiReview": true,
+      "note": "Bulk settlement group of 3: UTR shared with 2 sibling(s); the combined bank credit was already claimed, so this record is left PARTIAL_LEDGER_ONLY -- the known 1:1-simplification limitation from Day 2, reproduced honestly rather than special-cased away.",
+      "trueBankExternalIds": [
+        "bank_bulk_bulk1787788800syn854"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000221"
+      ]
+    },
+    "pay_SYN0000223": {
+      "caseType": "BULK_SETTLEMENT",
+      "needsAiReview": true,
+      "note": "Bulk settlement group of 3: UTR shared with 2 sibling(s); the combined bank credit was already claimed, so this record is left PARTIAL_LEDGER_ONLY -- the known 1:1-simplification limitation from Day 2, reproduced honestly rather than special-cased away.",
+      "trueBankExternalIds": [
+        "bank_bulk_bulk1787788800syn854"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000223"
+      ]
+    },
+    "pay_SYN0000225": {
+      "caseType": "TIMING_LAG",
+      "needsAiReview": false,
+      "note": "Bank credit lagged 2d and UTR wasn't echoed -> resolved by amount+date proximity, not exact match.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000225"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000225"
+      ]
+    },
+    "pay_SYN0000227": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000227"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000227"
+      ]
+    },
+    "pay_SYN0000229": {
+      "caseType": "TIMING_LAG",
+      "needsAiReview": false,
+      "note": "Bank credit lagged 3d and UTR wasn't echoed -> resolved by amount+date proximity, not exact match.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000229"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000229"
+      ]
+    },
+    "pay_SYN0000231": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000231"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000231"
+      ]
+    },
+    "pay_SYN0000233": {
+      "caseType": "TIMING_LAG",
+      "needsAiReview": false,
+      "note": "Bank credit lagged 2d and UTR wasn't echoed -> resolved by amount+date proximity, not exact match.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000233"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000233"
+      ]
+    },
+    "pay_SYN0000235": {
+      "caseType": "AMOUNT_MISMATCH",
+      "needsAiReview": true,
+      "note": "Settlement credit corrupted by 209p (waterfallOk=false); bank reflects the true net, so it can't be reference- or amount-matched.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000235"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000235"
+      ]
+    },
+    "pay_SYN0000237": {
+      "caseType": "CLEAN",
+      "needsAiReview": false,
+      "note": "Exact UTR + exact order_id on the first pass, no lag.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000237"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000237"
+      ]
+    },
+    "pay_SYN0000239": {
+      "caseType": "TIMING_LAG",
+      "needsAiReview": false,
+      "note": "Bank credit lagged 2d and UTR wasn't echoed -> resolved by amount+date proximity, not exact match.",
+      "trueBankExternalIds": [
+        "bank_pay_SYN0000239"
+      ],
+      "trueLedgerExternalIds": [
+        "ledger_pay_SYN0000239"
+      ]
+    }
+  }
+}

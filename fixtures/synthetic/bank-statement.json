@@ -1,0 +1,1274 @@
+[
+  {
+    "externalId": "bank_pay_SYN0000001",
+    "source": "bank",
+    "amount": 167243,
+    "date": "2026-08-22T08:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "UPI CR 400000000000000 rpy.payto00000kiranashop@hdfc"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000003",
+    "source": "bank",
+    "amount": 9486,
+    "date": "2026-08-27T08:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "UPI CR 600000000000000 rpy.payto00000acmevendor@icici"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000005",
+    "source": "bank",
+    "amount": 345888,
+    "date": "2026-08-27T03:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "UPI CR 200000000000000 rpy.payto00000zenretail@kotak"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000007",
+    "source": "bank",
+    "amount": 84081,
+    "date": "2026-08-22T07:00:00.000Z",
+    "refs": {
+      "utr": "1787382000syn0000008",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787382000syn0000008 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000009",
+    "source": "bank",
+    "amount": 207080,
+    "date": "2026-08-27T05:00:00.000Z",
+    "refs": {
+      "utr": "1787806800syn0000010",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787806800syn0000010 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000011",
+    "source": "bank",
+    "amount": 244251,
+    "date": "2026-08-26T07:00:00.000Z",
+    "refs": {
+      "utr": "1787727600syn0000012",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787727600syn0000012 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000013",
+    "source": "bank",
+    "amount": 149288,
+    "date": "2026-08-23T08:00:00.000Z",
+    "refs": {
+      "utr": "1787472000syn0000014",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787472000syn0000014 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000015",
+    "source": "bank",
+    "amount": 156752,
+    "date": "2026-08-22T04:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (amount variance)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000017",
+    "source": "bank",
+    "amount": 349029,
+    "date": "2026-08-29T10:00:00.000Z",
+    "refs": {
+      "utr": "1787997600syn0000018",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787997600syn0000018 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000019",
+    "source": "bank",
+    "amount": 258950,
+    "date": "2026-08-28T11:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "UPI CR 800000000000000 rpy.payto00000blueleaf@sbi"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000021",
+    "source": "bank",
+    "amount": 480706,
+    "date": "2026-08-25T11:00:00.000Z",
+    "refs": {
+      "utr": "1787655600syn0000022",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787655600syn0000022 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000023",
+    "source": "bank",
+    "amount": 38396,
+    "date": "2026-08-22T06:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "UPI CR 800000000000000 rpy.payto00000kiranashop@kotak"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000025",
+    "source": "bank",
+    "amount": 294578,
+    "date": "2026-08-24T05:00:00.000Z",
+    "refs": {
+      "utr": "1787547600syn0000026",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787547600syn0000026 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000027",
+    "source": "bank",
+    "amount": 458008,
+    "date": "2026-08-26T04:00:00.000Z",
+    "refs": {
+      "utr": "1787716800syn0000028",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787716800syn0000028 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000029",
+    "source": "bank",
+    "amount": 14533,
+    "date": "2026-08-21T08:00:00.000Z",
+    "refs": {
+      "utr": "1787299200syn0000030",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787299200syn0000030 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000033",
+    "source": "bank",
+    "amount": 145519,
+    "date": "2026-08-24T00:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000035",
+    "source": "bank",
+    "amount": 145519,
+    "date": "2026-08-24T00:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000037",
+    "source": "bank",
+    "amount": 210318,
+    "date": "2026-08-23T03:00:00.000Z",
+    "refs": {
+      "utr": "1787454000syn0000038",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787454000syn0000038 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000039",
+    "source": "bank",
+    "amount": 261309,
+    "date": "2026-08-25T08:00:00.000Z",
+    "refs": {
+      "utr": "1787644800syn0000040",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787644800syn0000040 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000041",
+    "source": "bank",
+    "amount": 76498,
+    "date": "2026-08-29T00:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (amount variance)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000043",
+    "source": "bank",
+    "amount": 32302,
+    "date": "2026-08-27T02:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (ref unavailable)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000045",
+    "source": "bank",
+    "amount": 367423,
+    "date": "2026-08-26T10:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "UPI CR 200000000000000 rpy.payto00000acmevendor@icici"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000047",
+    "source": "bank",
+    "amount": 131886,
+    "date": "2026-08-27T08:00:00.000Z",
+    "refs": {
+      "utr": "1787817600syn0000048",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787817600syn0000048 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000049",
+    "source": "bank",
+    "amount": 196645,
+    "date": "2026-08-24T03:00:00.000Z",
+    "refs": {
+      "utr": "1787540400syn0000050",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787540400syn0000050 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000051",
+    "source": "bank",
+    "amount": 461278,
+    "date": "2026-08-29T03:00:00.000Z",
+    "refs": {
+      "utr": "1787972400syn0000052",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787972400syn0000052 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000053",
+    "source": "bank",
+    "amount": 335946,
+    "date": "2026-08-28T10:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (ref unavailable)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000055",
+    "source": "bank",
+    "amount": 337055,
+    "date": "2026-08-26T07:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (ref unavailable)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000057",
+    "source": "bank",
+    "amount": 310124,
+    "date": "2026-08-27T11:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "UPI CR 800000000000000 rpy.payto00000blueleaf@sbi"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000059",
+    "source": "bank",
+    "amount": 409303,
+    "date": "2026-08-26T11:00:00.000Z",
+    "refs": {
+      "utr": "1787742000syn0000060",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787742000syn0000060 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000061",
+    "source": "bank",
+    "amount": 469566,
+    "date": "2026-08-25T03:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (amount variance)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000063",
+    "source": "bank",
+    "amount": 414123,
+    "date": "2026-08-29T07:00:00.000Z",
+    "refs": {
+      "utr": "1787986800syn0000064",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787986800syn0000064 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000065",
+    "source": "bank",
+    "amount": 436589,
+    "date": "2026-08-29T05:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (ref unavailable)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000067",
+    "source": "bank",
+    "amount": 25818,
+    "date": "2026-08-25T01:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (ref unavailable)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000069",
+    "source": "bank",
+    "amount": 335157,
+    "date": "2026-08-21T00:00:00.000Z",
+    "refs": {
+      "utr": "1787270400syn0000070",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787270400syn0000070 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000071",
+    "source": "bank",
+    "amount": 418634,
+    "date": "2026-08-26T11:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (amount variance)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000073",
+    "source": "bank",
+    "amount": 236962,
+    "date": "2026-08-23T03:00:00.000Z",
+    "refs": {
+      "utr": "1787454000syn0000074",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787454000syn0000074 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000077",
+    "source": "bank",
+    "amount": 33297,
+    "date": "2026-08-21T04:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (amount variance)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000079",
+    "source": "bank",
+    "amount": 169991,
+    "date": "2026-08-26T00:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "UPI CR 200000000000000 rpy.payto00000zenretail@icici"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000081",
+    "source": "bank",
+    "amount": 44751,
+    "date": "2026-08-27T05:00:00.000Z",
+    "refs": {
+      "utr": "1787806800syn0000082",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787806800syn0000082 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000083",
+    "source": "bank",
+    "amount": 464799,
+    "date": "2026-08-22T01:00:00.000Z",
+    "refs": {
+      "utr": "1787360400syn0000084",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787360400syn0000084 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000085",
+    "source": "bank",
+    "amount": 377116,
+    "date": "2026-08-23T01:00:00.000Z",
+    "refs": {
+      "utr": "1787446800syn0000086",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787446800syn0000086 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000087",
+    "source": "bank",
+    "amount": 104122,
+    "date": "2026-08-29T06:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (amount variance)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000089",
+    "source": "bank",
+    "amount": 27629,
+    "date": "2026-08-23T09:00:00.000Z",
+    "refs": {
+      "utr": "1787475600syn0000090",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787475600syn0000090 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000091",
+    "source": "bank",
+    "amount": 225184,
+    "date": "2026-08-22T08:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (amount variance)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000093",
+    "source": "bank",
+    "amount": 485779,
+    "date": "2026-08-22T06:00:00.000Z",
+    "refs": {
+      "utr": "1787378400syn0000094",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787378400syn0000094 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000097",
+    "source": "bank",
+    "amount": 255293,
+    "date": "2026-08-27T05:00:00.000Z",
+    "refs": {
+      "utr": "1787806800syn0000098",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787806800syn0000098 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000099",
+    "source": "bank",
+    "amount": 21709,
+    "date": "2026-08-29T04:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (ref unavailable)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000103",
+    "source": "bank",
+    "amount": 30864,
+    "date": "2026-08-26T07:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "UPI CR 500000000000000 rpy.payto00000acmevendor@axis"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000105",
+    "source": "bank",
+    "amount": 6672,
+    "date": "2026-08-27T02:00:00.000Z",
+    "refs": {
+      "utr": "1787796000syn0000106",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787796000syn0000106 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000109",
+    "source": "bank",
+    "amount": 244086,
+    "date": "2026-08-24T06:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "UPI CR 600000000000000 rpy.payto00000kiranashop@sbi"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000111",
+    "source": "bank",
+    "amount": 8872,
+    "date": "2026-08-29T00:00:00.000Z",
+    "refs": {
+      "utr": "1787961600syn0000112",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787961600syn0000112 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000113",
+    "source": "bank",
+    "amount": 273200,
+    "date": "2026-08-29T11:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (ref unavailable)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000115",
+    "source": "bank",
+    "amount": 397170,
+    "date": "2026-08-29T10:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (amount variance)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000117",
+    "source": "bank",
+    "amount": 427442,
+    "date": "2026-08-30T10:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (ref unavailable)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000121",
+    "source": "bank",
+    "amount": 71591,
+    "date": "2026-08-23T08:00:00.000Z",
+    "refs": {
+      "utr": "1787472000syn0000122",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787472000syn0000122 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000123",
+    "source": "bank",
+    "amount": 202823,
+    "date": "2026-08-28T00:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000125",
+    "source": "bank",
+    "amount": 202823,
+    "date": "2026-08-28T00:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000129",
+    "source": "bank",
+    "amount": 292240,
+    "date": "2026-08-24T08:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (ref unavailable)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000131",
+    "source": "bank",
+    "amount": 194300,
+    "date": "2026-08-26T02:00:00.000Z",
+    "refs": {
+      "utr": "1787709600syn0000132",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787709600syn0000132 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000133",
+    "source": "bank",
+    "amount": 347188,
+    "date": "2026-08-26T07:00:00.000Z",
+    "refs": {
+      "utr": "1787727600syn0000134",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787727600syn0000134 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000135",
+    "source": "bank",
+    "amount": 4952,
+    "date": "2026-08-23T01:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (ref unavailable)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000139",
+    "source": "bank",
+    "amount": 171962,
+    "date": "2026-08-22T09:00:00.000Z",
+    "refs": {
+      "utr": "1787389200syn0000140",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787389200syn0000140 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000141",
+    "source": "bank",
+    "amount": 289858,
+    "date": "2026-08-28T07:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "UPI CR 600000000000000 rpy.payto00000acmevendor@axis"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000143",
+    "source": "bank",
+    "amount": 358971,
+    "date": "2026-08-23T12:00:00.000Z",
+    "refs": {
+      "utr": "1787486400syn0000144",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787486400syn0000144 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000145",
+    "source": "bank",
+    "amount": 168352,
+    "date": "2026-08-26T12:00:00.000Z",
+    "refs": {
+      "utr": "1787745600syn0000146",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787745600syn0000146 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000147",
+    "source": "bank",
+    "amount": 444323,
+    "date": "2026-08-25T11:00:00.000Z",
+    "refs": {
+      "utr": "1787655600syn0000148",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787655600syn0000148 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000149",
+    "source": "bank",
+    "amount": 479821,
+    "date": "2026-08-25T12:00:00.000Z",
+    "refs": {
+      "utr": "1787659200syn0000150",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787659200syn0000150 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000151",
+    "source": "bank",
+    "amount": 482751,
+    "date": "2026-08-23T12:00:00.000Z",
+    "refs": {
+      "utr": "1787486400syn0000152",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787486400syn0000152 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000153",
+    "source": "bank",
+    "amount": 252569,
+    "date": "2026-08-24T02:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "UPI CR 300000000000000 rpy.payto00000blueleaf@sbi"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000155",
+    "source": "bank",
+    "amount": 90061,
+    "date": "2026-08-26T11:00:00.000Z",
+    "refs": {
+      "utr": "1787742000syn0000156",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787742000syn0000156 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000157",
+    "source": "bank",
+    "amount": 288744,
+    "date": "2026-08-28T05:00:00.000Z",
+    "refs": {
+      "utr": "1787893200syn0000158",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787893200syn0000158 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000159",
+    "source": "bank",
+    "amount": 324015,
+    "date": "2026-08-28T05:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (ref unavailable)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000161",
+    "source": "bank",
+    "amount": 162719,
+    "date": "2026-08-21T01:00:00.000Z",
+    "refs": {
+      "utr": "1787274000syn0000162",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787274000syn0000162 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000163",
+    "source": "bank",
+    "amount": 226970,
+    "date": "2026-08-29T01:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (ref unavailable)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000165",
+    "source": "bank",
+    "amount": 169309,
+    "date": "2026-08-24T08:00:00.000Z",
+    "refs": {
+      "utr": "1787558400syn0000166",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787558400syn0000166 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_bulk_bulk1787270400syn346",
+    "source": "bank",
+    "amount": 1070149,
+    "date": "2026-08-28T00:00:00.000Z",
+    "refs": {
+      "utr": "bulk1787270400syn346",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR bulk1787270400syn346 RAZORPAY SETTLEMENT (bulk, 3 orders)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000173",
+    "source": "bank",
+    "amount": 257531,
+    "date": "2026-08-26T12:00:00.000Z",
+    "refs": {
+      "utr": "1787745600syn0000174",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787745600syn0000174 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000175",
+    "source": "bank",
+    "amount": 440252,
+    "date": "2026-08-28T01:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (amount variance)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000177",
+    "source": "bank",
+    "amount": 217857,
+    "date": "2026-08-23T04:00:00.000Z",
+    "refs": {
+      "utr": "1787457600syn0000178",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787457600syn0000178 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000179",
+    "source": "bank",
+    "amount": 430821,
+    "date": "2026-08-23T07:00:00.000Z",
+    "refs": {
+      "utr": "1787468400syn0000180",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787468400syn0000180 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000181",
+    "source": "bank",
+    "amount": 281178,
+    "date": "2026-08-24T12:00:00.000Z",
+    "refs": {
+      "utr": "1787572800syn0000182",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787572800syn0000182 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000183",
+    "source": "bank",
+    "amount": 79583,
+    "date": "2026-08-21T01:00:00.000Z",
+    "refs": {
+      "utr": "1787274000syn0000184",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787274000syn0000184 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000185",
+    "source": "bank",
+    "amount": 223060,
+    "date": "2026-08-24T12:00:00.000Z",
+    "refs": {
+      "utr": "1787572800syn0000186",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787572800syn0000186 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000187",
+    "source": "bank",
+    "amount": 367068,
+    "date": "2026-08-23T07:00:00.000Z",
+    "refs": {
+      "utr": "1787468400syn0000188",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787468400syn0000188 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000189",
+    "source": "bank",
+    "amount": 187505,
+    "date": "2026-08-22T12:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "UPI CR 100000000000000 rpy.payto00000kiranashop@icici"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000191",
+    "source": "bank",
+    "amount": 412193,
+    "date": "2026-08-22T12:00:00.000Z",
+    "refs": {
+      "utr": "1787400000syn0000192",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787400000syn0000192 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000193",
+    "source": "bank",
+    "amount": 195711,
+    "date": "2026-08-21T04:00:00.000Z",
+    "refs": {
+      "utr": "1787284800syn0000194",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787284800syn0000194 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000195",
+    "source": "bank",
+    "amount": 469987,
+    "date": "2026-08-30T02:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (ref unavailable)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000197",
+    "source": "bank",
+    "amount": 476532,
+    "date": "2026-08-31T11:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (ref unavailable)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000199",
+    "source": "bank",
+    "amount": 106978,
+    "date": "2026-08-21T00:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000201",
+    "source": "bank",
+    "amount": 106978,
+    "date": "2026-08-21T00:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000203",
+    "source": "bank",
+    "amount": 311725,
+    "date": "2026-08-27T10:00:00.000Z",
+    "refs": {
+      "utr": "1787824800syn0000204",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787824800syn0000204 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000205",
+    "source": "bank",
+    "amount": 258892,
+    "date": "2026-08-24T01:00:00.000Z",
+    "refs": {
+      "utr": "1787533200syn0000206",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787533200syn0000206 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000207",
+    "source": "bank",
+    "amount": 273982,
+    "date": "2026-08-22T00:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "UPI CR 400000000000000 rpy.payto00000kiranashop@axis"
+    }
+  },
+  {
+    "externalId": "bank_bulk_bulk1787270400syn360",
+    "source": "bank",
+    "amount": 187318,
+    "date": "2026-08-23T00:00:00.000Z",
+    "refs": {
+      "utr": "bulk1787270400syn360",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR bulk1787270400syn360 RAZORPAY SETTLEMENT (bulk, 3 orders)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000215",
+    "source": "bank",
+    "amount": 298017,
+    "date": "2026-08-26T07:00:00.000Z",
+    "refs": {
+      "utr": "1787727600syn0000216",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787727600syn0000216 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000217",
+    "source": "bank",
+    "amount": 212241,
+    "date": "2026-08-27T01:00:00.000Z",
+    "refs": {
+      "utr": "1787792400syn0000218",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787792400syn0000218 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_bulk_bulk1787788800syn854",
+    "source": "bank",
+    "amount": 1103886,
+    "date": "2026-08-25T00:00:00.000Z",
+    "refs": {
+      "utr": "bulk1787788800syn854",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR bulk1787788800syn854 RAZORPAY SETTLEMENT (bulk, 3 orders)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000225",
+    "source": "bank",
+    "amount": 354689,
+    "date": "2026-08-26T12:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (ref unavailable)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000227",
+    "source": "bank",
+    "amount": 148307,
+    "date": "2026-08-23T04:00:00.000Z",
+    "refs": {
+      "utr": "1787457600syn0000228",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787457600syn0000228 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000229",
+    "source": "bank",
+    "amount": 347643,
+    "date": "2026-08-25T03:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (ref unavailable)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000231",
+    "source": "bank",
+    "amount": 270482,
+    "date": "2026-08-25T04:00:00.000Z",
+    "refs": {
+      "utr": "1787630400syn0000232",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787630400syn0000232 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000233",
+    "source": "bank",
+    "amount": 382756,
+    "date": "2026-08-30T09:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (ref unavailable)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000235",
+    "source": "bank",
+    "amount": 479468,
+    "date": "2026-08-23T05:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (amount variance)"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000237",
+    "source": "bank",
+    "amount": 316393,
+    "date": "2026-08-28T07:00:00.000Z",
+    "refs": {
+      "utr": "1787900400syn0000238",
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR 1787900400syn0000238 RAZORPAY SETTLEMENT"
+    }
+  },
+  {
+    "externalId": "bank_pay_SYN0000239",
+    "source": "bank",
+    "amount": 292370,
+    "date": "2026-08-27T05:00:00.000Z",
+    "refs": {
+      "utr": null,
+      "orderId": null,
+      "orderReceipt": null,
+      "narration": "NEFT CR RAZORPAY SETTLEMENT (ref unavailable)"
+    }
+  }
+]
