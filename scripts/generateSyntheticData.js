@@ -1,6 +1,6 @@
 // scripts/generateSyntheticData.js
 //
-// Day 3 CLI: generates the synthetic bank statement + ledger (+ internal
+// Day 2 CLI: generates the synthetic bank statement + ledger (+ internal
 // ground truth) and writes them to fixtures/synthetic/. Re-run any time —
 // it's deterministic for a given seed, so the demo dataset never drifts.
 //
@@ -28,7 +28,7 @@ const files = {
   'bank-statement.json': bankStatement,
   'ledger.json': ledger,
   // Kept separate and clearly labeled: this file is NEVER read by
-  // matchEngine.js or the Day 4 LLM layer. It exists purely for Day 5's
+  // matchEngine.js or the Day 3 LLM layer. It exists purely for Day 3's
   // evaluation layer to score results against reality.
   'ground-truth.internal.json': groundTruth,
 };

@@ -14,7 +14,7 @@
     "pay_SYN0000001": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine claims the bank line on amount+date alone with zero reference corroboration (PROXIMITY_ONLY_NO_REFERENCE) -> PARTIAL_BANK_ONLY, LOW, escalated. LLM must parse the narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000001"
       ],
@@ -23,7 +23,7 @@
     "pay_SYN0000003": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine claims the bank line on amount+date alone with zero reference corroboration (PROXIMITY_ONLY_NO_REFERENCE) -> PARTIAL_BANK_ONLY, LOW, escalated. LLM must parse the narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000003"
       ],
@@ -32,7 +32,7 @@
     "pay_SYN0000005": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine claims the bank line on amount+date alone with zero reference corroboration (PROXIMITY_ONLY_NO_REFERENCE) -> PARTIAL_BANK_ONLY, LOW, escalated. LLM must parse the narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000005"
       ],
@@ -107,7 +107,7 @@
     "pay_SYN0000019": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine claims the bank line on amount+date alone with zero reference corroboration (PROXIMITY_ONLY_NO_REFERENCE) -> PARTIAL_BANK_ONLY, LOW, escalated. LLM must parse the narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000019"
       ],
@@ -127,7 +127,7 @@
     "pay_SYN0000023": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine claims the bank line on amount+date alone with zero reference corroboration (PROXIMITY_ONLY_NO_REFERENCE) -> PARTIAL_BANK_ONLY, LOW, escalated. LLM must parse the narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000023"
       ],
@@ -242,7 +242,7 @@
     "pay_SYN0000045": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine claims the bank line on amount+date alone with zero reference corroboration (PROXIMITY_ONLY_NO_REFERENCE) -> PARTIAL_BANK_ONLY, LOW, escalated. LLM must parse the narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000045"
       ],
@@ -306,7 +306,7 @@
     "pay_SYN0000057": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine claims the bank line on amount+date alone with zero reference corroboration (PROXIMITY_ONLY_NO_REFERENCE) -> PARTIAL_BANK_ONLY, LOW, escalated. LLM must parse the narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000057"
       ],
@@ -421,7 +421,7 @@
     "pay_SYN0000079": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine claims the bank line on amount+date alone with zero reference corroboration (PROXIMITY_ONLY_NO_REFERENCE) -> PARTIAL_BANK_ONLY, LOW, escalated. LLM must parse the narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000079"
       ],
@@ -543,7 +543,7 @@
     "pay_SYN0000103": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine claims the bank line on amount+date alone with zero reference corroboration (PROXIMITY_ONLY_NO_REFERENCE) -> PARTIAL_BANK_ONLY, LOW, escalated. LLM must parse the narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000103"
       ],
@@ -570,7 +570,7 @@
     "pay_SYN0000109": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine claims the bank line on amount+date alone with zero reference corroboration (PROXIMITY_ONLY_NO_REFERENCE) -> PARTIAL_BANK_ONLY, LOW, escalated. LLM must parse the narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000109"
       ],
@@ -732,7 +732,7 @@
     "pay_SYN0000141": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine claims the bank line on amount+date alone with zero reference corroboration (PROXIMITY_ONLY_NO_REFERENCE) -> PARTIAL_BANK_ONLY, LOW, escalated. LLM must parse the narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000141"
       ],
@@ -796,7 +796,7 @@
     "pay_SYN0000153": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine claims the bank line on amount+date alone with zero reference corroboration (PROXIMITY_ONLY_NO_REFERENCE) -> PARTIAL_BANK_ONLY, LOW, escalated. LLM must parse the narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000153"
       ],
@@ -871,7 +871,7 @@
     "pay_SYN0000167": {
       "caseType": "BULK_SETTLEMENT",
       "needsAiReview": true,
-      "note": "Bulk settlement group of 3: this record claimed the shared combined bank credit via EXACT_UTR.",
+      "note": "Bulk settlement group of 3: this record claimed the shared combined bank credit via EXACT_UTR, but the credit covers its siblings too, so its amount is ~3x this record's net -> AMOUNT_DISAGREES_BANK. A reference hit is not an amount agreement; escalated, not reported clean.",
       "trueBankExternalIds": [
         "bank_bulk_bulk1787270400syn346"
       ],
@@ -882,7 +882,7 @@
     "pay_SYN0000169": {
       "caseType": "BULK_SETTLEMENT",
       "needsAiReview": true,
-      "note": "Bulk settlement group of 3: UTR shared with 2 sibling(s); the combined bank credit was already claimed, so this record is left PARTIAL_LEDGER_ONLY -- the known 1:1-simplification limitation from Day 2, reproduced honestly rather than special-cased away.",
+      "note": "Bulk settlement group of 3: UTR shared with 2 sibling(s); the combined bank credit was already claimed by the first member, so this record is left PARTIAL_LEDGER_ONLY. SHARED_UTR_GROUP carries the sibling ids and the combined net the single credit should equal.",
       "trueBankExternalIds": [
         "bank_bulk_bulk1787270400syn346"
       ],
@@ -893,7 +893,7 @@
     "pay_SYN0000171": {
       "caseType": "BULK_SETTLEMENT",
       "needsAiReview": true,
-      "note": "Bulk settlement group of 3: UTR shared with 2 sibling(s); the combined bank credit was already claimed, so this record is left PARTIAL_LEDGER_ONLY -- the known 1:1-simplification limitation from Day 2, reproduced honestly rather than special-cased away.",
+      "note": "Bulk settlement group of 3: UTR shared with 2 sibling(s); the combined bank credit was already claimed by the first member, so this record is left PARTIAL_LEDGER_ONLY. SHARED_UTR_GROUP carries the sibling ids and the combined net the single credit should equal.",
       "trueBankExternalIds": [
         "bank_bulk_bulk1787270400syn346"
       ],
@@ -992,7 +992,7 @@
     "pay_SYN0000189": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine claims the bank line on amount+date alone with zero reference corroboration (PROXIMITY_ONLY_NO_REFERENCE) -> PARTIAL_BANK_ONLY, LOW, escalated. LLM must parse the narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000189"
       ],
@@ -1089,7 +1089,7 @@
     "pay_SYN0000207": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine claims the bank line on amount+date alone with zero reference corroboration (PROXIMITY_ONLY_NO_REFERENCE) -> PARTIAL_BANK_ONLY, LOW, escalated. LLM must parse the narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000207"
       ],
@@ -1098,7 +1098,7 @@
     "pay_SYN0000209": {
       "caseType": "BULK_SETTLEMENT",
       "needsAiReview": true,
-      "note": "Bulk settlement group of 3: this record claimed the shared combined bank credit via EXACT_UTR.",
+      "note": "Bulk settlement group of 3: this record claimed the shared combined bank credit via EXACT_UTR, but the credit covers its siblings too, so its amount is ~3x this record's net -> AMOUNT_DISAGREES_BANK. A reference hit is not an amount agreement; escalated, not reported clean.",
       "trueBankExternalIds": [
         "bank_bulk_bulk1787270400syn360"
       ],
@@ -1109,7 +1109,7 @@
     "pay_SYN0000211": {
       "caseType": "BULK_SETTLEMENT",
       "needsAiReview": true,
-      "note": "Bulk settlement group of 3: UTR shared with 2 sibling(s); the combined bank credit was already claimed, so this record is left PARTIAL_LEDGER_ONLY -- the known 1:1-simplification limitation from Day 2, reproduced honestly rather than special-cased away.",
+      "note": "Bulk settlement group of 3: UTR shared with 2 sibling(s); the combined bank credit was already claimed by the first member, so this record is left PARTIAL_LEDGER_ONLY. SHARED_UTR_GROUP carries the sibling ids and the combined net the single credit should equal.",
       "trueBankExternalIds": [
         "bank_bulk_bulk1787270400syn360"
       ],
@@ -1120,7 +1120,7 @@
     "pay_SYN0000213": {
       "caseType": "BULK_SETTLEMENT",
       "needsAiReview": true,
-      "note": "Bulk settlement group of 3: UTR shared with 2 sibling(s); the combined bank credit was already claimed, so this record is left PARTIAL_LEDGER_ONLY -- the known 1:1-simplification limitation from Day 2, reproduced honestly rather than special-cased away.",
+      "note": "Bulk settlement group of 3: UTR shared with 2 sibling(s); the combined bank credit was already claimed by the first member, so this record is left PARTIAL_LEDGER_ONLY. SHARED_UTR_GROUP carries the sibling ids and the combined net the single credit should equal.",
       "trueBankExternalIds": [
         "bank_bulk_bulk1787270400syn360"
       ],
@@ -1153,7 +1153,7 @@
     "pay_SYN0000219": {
       "caseType": "BULK_SETTLEMENT",
       "needsAiReview": true,
-      "note": "Bulk settlement group of 3: this record claimed the shared combined bank credit via EXACT_UTR.",
+      "note": "Bulk settlement group of 3: this record claimed the shared combined bank credit via EXACT_UTR, but the credit covers its siblings too, so its amount is ~3x this record's net -> AMOUNT_DISAGREES_BANK. A reference hit is not an amount agreement; escalated, not reported clean.",
       "trueBankExternalIds": [
         "bank_bulk_bulk1787788800syn854"
       ],
@@ -1164,7 +1164,7 @@
     "pay_SYN0000221": {
       "caseType": "BULK_SETTLEMENT",
       "needsAiReview": true,
-      "note": "Bulk settlement group of 3: UTR shared with 2 sibling(s); the combined bank credit was already claimed, so this record is left PARTIAL_LEDGER_ONLY -- the known 1:1-simplification limitation from Day 2, reproduced honestly rather than special-cased away.",
+      "note": "Bulk settlement group of 3: UTR shared with 2 sibling(s); the combined bank credit was already claimed by the first member, so this record is left PARTIAL_LEDGER_ONLY. SHARED_UTR_GROUP carries the sibling ids and the combined net the single credit should equal.",
       "trueBankExternalIds": [
         "bank_bulk_bulk1787788800syn854"
       ],
@@ -1175,7 +1175,7 @@
     "pay_SYN0000223": {
       "caseType": "BULK_SETTLEMENT",
       "needsAiReview": true,
-      "note": "Bulk settlement group of 3: UTR shared with 2 sibling(s); the combined bank credit was already claimed, so this record is left PARTIAL_LEDGER_ONLY -- the known 1:1-simplification limitation from Day 2, reproduced honestly rather than special-cased away.",
+      "note": "Bulk settlement group of 3: UTR shared with 2 sibling(s); the combined bank credit was already claimed by the first member, so this record is left PARTIAL_LEDGER_ONLY. SHARED_UTR_GROUP carries the sibling ids and the combined net the single credit should equal.",
       "trueBankExternalIds": [
         "bank_bulk_bulk1787788800syn854"
       ],

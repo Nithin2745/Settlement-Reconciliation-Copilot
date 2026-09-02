@@ -1,50 +1,65 @@
 // src/synthetic/generateSyntheticBatch.js
 //
-// Day 3: synthetic bank-statement + ledger generators, with an internal
+// Day 2: synthetic bank-statement + ledger generators, with an internal
 // ground-truth map, conforming exactly to:
 // - the raw Razorpay Settlement Recon item shape (src/normalizeSettlement.js)
-// - the ExternalRecord shape matchEngine.js was written against (Day 2)
+// - the ExternalRecord shape matchEngine.js was written against (Day 1)
 //
 // Design principle (master doc 4.6): the generator KNOWS the correct answer
 // for every record before deliberately corrupting the observable fields.
 // groundTruth is never passed to the matcher or the LLM layer — it exists
-// so Day 5's evaluation layer can score both against reality, not just
+// so Day 3's evaluation layer can score both against reality, not just
 // against each other.
+//
+// The ground-truth field that matters most is `needsAiReview`: for each
+// record, does a *correct* system have to escalate it? Scoring the Day 1
+// engine's `needsReview` against that answers the two questions the pitch
+// rests on — did anything wrong slip through unflagged (silent misses), and
+// how much inference is being spent on records that didn't need it.
 //
 // Seven case types, weighted per the locked distribution (mostly realistic
 // traffic, a deliberate slice of every exception the LLM layer needs to
 // prove itself on):
-// CLEAN           45% -> FULLY_MATCHED (both exact)
-// TIMING_LAG      15% -> FULLY_MATCHED (bank via proximity, ledger exact)
-// BLIND_PAYMENT   12% -> PARTIAL_BANK_ONLY, but LOW-CONFIDENCE: resolved
-//                        by amount+date alone, zero reference
-//                        corroboration. matchEngine calls this
-//                        "matched"; it is exactly the kind of
-//                        single-weak-signal resolution worth flagging
-//                        for review even though the status isn't
-//                        UNRESOLVED. (Day 3 finding -> DECISIONS.md.)
-// BULK_SETTLEMENT ~8% -> one shared settlement_utr across a group,
-//                        ONE combined bank credit. First record in the
-//                        group claims it (EXACT_UTR); siblings can't
-//                        (pool.filter already removed it) and don't
-//                        amount-match the combined credit either ->
-//                        PARTIAL_LEDGER_ONLY for the rest. This is the
-//                        known scope limitation flagged in Day 2's
-//                        matchEngine.js comments, reproduced honestly
-//                        rather than special-cased away.
-// AMOUNT_MISMATCH ~8% -> settlement's own credit/debit deliberately
-//                        doesn't reconcile (waterfallOk: false); bank
-//                        line reflects the TRUE money movement, so it
-//                        disagrees with the settlement's (wrong) net
-//                        amount -> PARTIAL_LEDGER_ONLY + waterfall flag.
+// CLEAN           45% -> FULLY_MATCHED, HIGH, not escalated. On a ~20% slice
+//                        the ledger carries only the receipt number, which
+//                        is what exercises EXACT_ORDER_RECEIPT.
+// TIMING_LAG      15% -> FULLY_MATCHED via bank proximity + exact ledger
+//                        reference. Deliberately NOT escalated: the ledger's
+//                        order id corroborates the proximity hit, so this is
+//                        lag the deterministic engine genuinely handled.
+//                        MEDIUM rather than HIGH, since one side is inexact.
+// BLIND_PAYMENT   12% -> PARTIAL_BANK_ONLY, and escalated even though a bank
+//                        record *was* claimed: the only thing tying them
+//                        together is amount + date, with zero reference
+//                        corroboration anywhere (PROXIMITY_ONLY_NO_REFERENCE).
+//                        This is the case the LLM has to earn its place on —
+//                        parse the Smart Collect narration for the vendor.
+// BULK_SETTLEMENT ~8% -> one shared settlement_utr across a group, ONE
+//                        combined bank credit. The first record claims it via
+//                        EXACT_UTR, but the credit is ~3x its own net, so the
+//                        amount cross-check fires (AMOUNT_DISAGREES_BANK) and
+//                        it is escalated rather than reported clean; siblings
+//                        can't claim the already-taken credit and land on
+//                        PARTIAL_LEDGER_ONLY. All members carry
+//                        SHARED_UTR_GROUP with the combined net the engine
+//                        expects, so the exception layer receives a formed
+//                        hypothesis instead of a shrug.
+// AMOUNT_MISMATCH ~8% -> settlement's own credit/debit deliberately doesn't
+//                        reconcile (waterfallOk: false); bank line reflects
+//                        the TRUE money movement, so it disagrees with the
+//                        settlement's (wrong) net amount -> PARTIAL_LEDGER_ONLY
+//                        + WATERFALL_MISMATCH.
 // AMBIGUOUS       ~5% -> pairs of settlements, identical amounts, no
-//                        references anywhere -> AMBIGUOUS_PROXIMITY on
-//                        both sides -> UNRESOLVED.
-// ORPHAN          ~7% -> internal transfer, no order_id/receipt/utr,
-//                        genuinely no bank or ledger counterpart at
-//                        all -> UNRESOLVED. Not an LLM failure case —
-//                        there is nothing to find. Kept in the mix so
-//                        the reported unresolved rate stays honest.
+//                        references anywhere -> AMBIGUOUS_PROXIMITY on both
+//                        sides -> UNRESOLVED/AMBIGUOUS_CANDIDATES.
+// ORPHAN          ~7% -> internal transfer, no order_id/receipt/utr, and
+//                        genuinely no bank or ledger counterpart at all ->
+//                        UNRESOLVED. needsAiReview is false: there is nothing
+//                        to find. The engine still escalates these, and that
+//                        over-escalation is the honest, measured cost of
+//                        never silently dropping a real exception — no
+//                        deterministic rule can tell "no counterpart exists"
+//                        from "the counterpart is missing".
 
 const { makeRng } = require('./prng');
 
@@ -125,19 +140,34 @@ function makeIdFactory() {
  * ExternalRecords, plus its ground-truth entry. Returns
  * { settlement, bankRecords, ledgerRecords, groundTruth }.
  */
-function buildRecord({ rng, nextId, caseType, amountPool, groupTag }) {
+function buildRecord({ rng, nextId, caseType, amountPool, settledOffsetOverride }) {
   const entityId = nextId('pay');
   const amount = amountPool ?? rng.int(5000, 500000); // paise: ₹50 - ₹5,000
   const fee = Math.round(amount * 0.02);
   const tax = Math.round(fee * 0.18);
 
-  const createdOffset = rng.int(0, 8) * DAY_MS + rng.int(0, 12) * 60 * 60 * 1000;
-  const settledOffset = createdOffset + DAY_MS; // T+1 settlement, the common case
+  // Drawn unconditionally so a record consumes the same number of rng draws
+  // whether or not it belongs to a date-aligned group — keeps a seed's output
+  // shape stable when group membership changes.
+  const randomSettledOffset = rng.int(0, 8) * DAY_MS + rng.int(0, 12) * 60 * 60 * 1000 + DAY_MS;
+
+  // Grouped case types (bulk, ambiguous) need every member to share one
+  // settlement date, and that has to be decided HERE — before settled_at is
+  // baked into the record. An earlier version aligned the group's bank lines
+  // afterwards and left settlement.settled_at on the record's original date,
+  // drifting members up to 7.5 days from their own bank credit and pushing
+  // them outside the 3-day proximity window for entirely the wrong reason.
+  const settledOffset = settledOffsetOverride ?? randomSettledOffset;
+  const createdOffset = settledOffset - DAY_MS; // T+1 settlement, the common case
 
   const orderIdx = nextId('order').replace('order_SYN', '');
   const orderId = `order_SYN${orderIdx}`;
-  const orderReceipt = `INV-${pad(rng.int(1, 9999), 4)}`;
-  const settlementUtr = groupTag || `${unixAt(settledOffset)}syn${orderIdx}`;
+  // Derived from the monotonic index rather than a random 4-digit number:
+  // receipts have to be globally unique, or an EXACT_ORDER_RECEIPT lookup can
+  // claim a different record's invoice (a 1-in-9999 draw collides ~23% of the
+  // time across a 120-record batch).
+  const orderReceipt = `INV-${orderIdx}`;
+  const settlementUtr = `${unixAt(settledOffset)}syn${orderIdx}`;
   const trueNet = amount - fee - tax; // what the money movement actually is
 
   const settlement = {
@@ -194,6 +224,18 @@ function buildRecord({ rng, nextId, caseType, amountPool, groupTag }) {
       narration: null,
     },
   };
+
+  // Reference-coverage variation on the two clean paths: a deterministic ~20%
+  // slice of ledger entries carry only the invoice/receipt number and not the
+  // order id — the ordinary reality of an accounting system keyed on invoices
+  // rather than on the PSP's order ids. This is the only thing in the batch
+  // that exercises tryExactMatch's third branch (EXACT_ORDER_RECEIPT), which
+  // otherwise never fired once across 120 records; the roll is drawn
+  // unconditionally to keep per-record rng consumption uniform.
+  const receiptOnlyRoll = rng.float();
+  if (receiptOnlyRoll < 0.2 && (caseType === 'CLEAN' || caseType === 'TIMING_LAG')) {
+    ledger.refs.orderId = null;
+  }
 
   return {
     settlement,
@@ -263,7 +305,8 @@ function applyCaseType(base, caseType, { rng, groupExtras } = {}) {
       gt.needsAiReview = true;
       gt.note =
         'Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; ' +
-        'no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.';
+        'no ledger entry exists. Deterministic engine claims the bank line on amount+date alone with zero reference ' +
+        'corroboration (PROXIMITY_ONLY_NO_REFERENCE) -> PARTIAL_BANK_ONLY, LOW, escalated. LLM must parse the narration to identify vendor/customer.';
       break;
     }
 
@@ -315,8 +358,8 @@ function applyCaseType(base, caseType, { rng, groupExtras } = {}) {
       gt.trueBankExternalIds = [groupExtras.sharedBank.externalId];
       gt.needsAiReview = true;
       gt.note = groupExtras.isWinner
-        ? `Bulk settlement group of ${groupExtras.groupSize}: this record claimed the shared combined bank credit via EXACT_UTR.`
-        : `Bulk settlement group of ${groupExtras.groupSize}: UTR shared with ${groupExtras.groupSize - 1} sibling(s); the combined bank credit was already claimed, so this record is left PARTIAL_LEDGER_ONLY -- the known 1:1-simplification limitation from Day 2, reproduced honestly rather than special-cased away.`;
+        ? `Bulk settlement group of ${groupExtras.groupSize}: this record claimed the shared combined bank credit via EXACT_UTR, but the credit covers its siblings too, so its amount is ~${groupExtras.groupSize}x this record's net -> AMOUNT_DISAGREES_BANK. A reference hit is not an amount agreement; escalated, not reported clean.`
+        : `Bulk settlement group of ${groupExtras.groupSize}: UTR shared with ${groupExtras.groupSize - 1} sibling(s); the combined bank credit was already claimed by the first member, so this record is left PARTIAL_LEDGER_ONLY. SHARED_UTR_GROUP carries the sibling ids and the combined net the single credit should equal.`;
       break;
     }
 
@@ -400,14 +443,16 @@ function generateSyntheticBatch({ size = 120, seed = 42 } = {}) {
       let combinedNet = 0;
       const members = [];
       for (let k = 0; k < item.groupSize; k += 1) {
+        // settledOffsetOverride aligns settled_at and the member's own bank
+        // date in one place, so every member agrees with the single combined
+        // credit's date instead of being patched up afterwards.
         const base = buildRecord({
           rng,
           nextId,
           caseType: item.caseType,
           amountPool: uniqueAmount(),
+          settledOffsetOverride: settledOffset,
         });
-        base.settledOffset = settledOffset; // align the whole group to one settlement date
-        base.bank.date = isoAt(settledOffset);
         combinedNet += base.trueNet;
         members.push(base);
       }
@@ -450,8 +495,8 @@ function generateSyntheticBatch({ size = 120, seed = 42 } = {}) {
           nextId,
           caseType: item.caseType,
           amountPool: sharedAmount,
+          settledOffsetOverride: settledOffset,
         });
-        base.settledOffset = settledOffset;
         const { settlement, bankRecords, ledgerRecords, groundTruth: gt } = applyCaseType(
           base,
           item.caseType,
@@ -490,7 +535,7 @@ function generateSyntheticBatch({ size = 120, seed = 42 } = {}) {
 
   return {
     settlementRecon: {
-      _fixture_note: `SYNTHETIC batch, seed=${seed}, size=${settlements.length}. Generated by generateSyntheticBatch for Day 3 stress-testing. Schema matches the real Settlement Recon response.`,
+      _fixture_note: `SYNTHETIC batch, seed=${seed}, size=${settlements.length}. Generated by generateSyntheticBatch (Day 2) for stress-testing the deterministic engine and, from Day 3, the exception layer. Schema matches the real Settlement Recon response.`,
       entity: 'collection',
       count: settlements.length,
       items: settlements,

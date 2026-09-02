@@ -2,7 +2,7 @@
 //
 // Converts a raw Razorpay Settlement Recon response (real field names:
 // entity_id, settlement_utr, amount, fee, tax, settled, ...) into the
-// internal model the matcher (Day 2) will work with, and — because this is
+// internal model the matcher (Day 1) will work with, and — because this is
 // the one place every record passes through — validates the net-settlement
 // waterfall right here: gross amount -> fees -> tax -> net settled amount.
 //

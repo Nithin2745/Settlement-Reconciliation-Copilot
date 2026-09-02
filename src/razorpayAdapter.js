@@ -20,6 +20,15 @@ const fs = require('fs');
 const path = require('path');
 const { config, assertLiveModeIsConfigured } = require('./config');
 
+// Razorpay's maximum page size for the recon endpoint. Requesting more is
+// silently clamped, which is why the loop below trusts the returned length
+// rather than the requested one.
+const PAGE_SIZE = 100;
+// Refuse to spin forever if the API ever ignores `skip`. 200 pages is ~20k line
+// items in one settlement day — far beyond anything this tool is scoped for, so
+// hitting it means something is wrong, not that the merchant is busy.
+const MAX_PAGES = 200;
+
 /**
  * Fetch the raw Settlement Recon response for the configured day.
  * Shape (real Razorpay schema): { entity: 'collection', count, items: [...] }
@@ -46,10 +55,37 @@ async function fetchLive() {
   }
 
   // instance.settlements.reports({year, month, day}) === the recon endpoint.
-  // TODO (stress-test day): loop on `skip` once a single settlement day has
-  // more than `count` records — not needed for day-1 verification.
-  const response = await instance.settlements.reports({ year, month, day, count: 100 });
-  return response;
+  //
+  // Paginated on `skip`, because a single busy settlement day exceeds one page
+  // and a silently truncated fetch is the worst possible failure here: the
+  // missing line items don't show up as unresolved, they just don't exist, so
+  // the batch reconciles clean while real money goes unaccounted for. Better
+  // to make the page boundary explicit than to cap at 100 and hope.
+  const items = [];
+  for (let page = 0; page < MAX_PAGES; page += 1) {
+    const response = await instance.settlements.reports({
+      year,
+      month,
+      day,
+      count: PAGE_SIZE,
+      skip: page * PAGE_SIZE,
+    });
+
+    const pageItems = response && Array.isArray(response.items) ? response.items : [];
+    items.push(...pageItems);
+
+    // A short page is the last page. Trust the returned count, not the
+    // requested one.
+    if (pageItems.length < PAGE_SIZE) {
+      return { entity: 'collection', count: items.length, items };
+    }
+  }
+
+  throw new Error(
+    `Settlement recon fetch exceeded ${MAX_PAGES} pages (${items.length} items) for ` +
+      `${year}-${month}-${day}. Refusing to continue: the API may be ignoring \`skip\`, ` +
+      'and a partial day would reconcile clean with records missing.'
+  );
 }
 
 function readFixture() {

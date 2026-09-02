@@ -39,7 +39,7 @@ async function main() {
   if (waterfallFailures > 0) {
     console.log(
       `${waterfallFailures} record(s) failed the amount/fee/tax waterfall check — ` +
-        `these are exactly the kind of thing the deterministic engine (Day 2) should surface, not hide.`
+        `these are exactly the kind of thing the deterministic engine (Day 1) should surface, not hide.`
     );
   }
 

@@ -12,8 +12,10 @@
 //   adj_SAMPLE0000005  -> ledger has the chargeback-reversal entry, bank
 //                          statement line is missing (still pending credit)  => PARTIAL_LEDGER_ONLY
 //
-// Real synthetic generators (with an internal ground-truth map) land Day 3
-// and will replace this mock data behind the same ExternalRecord shape.
+// This stays as the engine's unit-level smoke test on a hand-written fixture
+// where every expected outcome is asserted by name. The 120-record synthetic
+// batch with an internal ground-truth map (Day 2, `npm run verify-synthetic`)
+// exercises the same engine at scale behind the same ExternalRecord shape.
 
 const assert = require('assert');
 const { getSettlementRecon } = require('../src/razorpayAdapter');
