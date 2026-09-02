@@ -175,6 +175,45 @@ function matchThreeWay(settlementRecords, bankLines, ledgerEntries, opts = {}) {
     else if (hasLedger) status = 'PARTIAL_LEDGER_ONLY';
     else status = 'UNRESOLVED';
 
+    const unresolvedReason =
+      status === 'UNRESOLVED'
+        ? (bankMatch && bankMatch.method === 'AMBIGUOUS_PROXIMITY') ||
+          (ledgerMatch && ledgerMatch.method === 'AMBIGUOUS_PROXIMITY')
+          ? 'AMBIGUOUS_CANDIDATES'
+          : 'NO_CANDIDATE_FOUND'
+        : null;
+
+    // Compute confidenceTier to flag weak-signal cases for Day 4 review
+    // HIGH: both exact, or single-source exact + amount agrees
+    // MEDIUM: proximity match on at least one side, or one-sided exact
+    // LOW: amount+date only with zero reference (blind), or ambiguous signal
+    let confidenceTier = 'HIGH'; // default
+
+    const bankViaProximity = bankMatch && bankMatch.method === 'AMOUNT_DATE_PROXIMITY';
+    const ledgerViaProximity = ledgerMatch && ledgerMatch.method === 'AMOUNT_DATE_PROXIMITY';
+    const bankAmbiguous = bankMatch && bankMatch.method === 'AMBIGUOUS_PROXIMITY';
+    const ledgerAmbiguous = ledgerMatch && ledgerMatch.method === 'AMBIGUOUS_PROXIMITY';
+
+    if (hasBank && hasLedger) {
+      // Both sides matched; HIGH unless via proximity
+      if (bankViaProximity || ledgerViaProximity) confidenceTier = 'MEDIUM';
+    } else if (hasBank) {
+      // Bank only
+      if (bankViaProximity) confidenceTier = 'LOW'; // amount+date no reference
+      else if (bankMatch.method === 'EXACT_UTR' && !hasLedger) confidenceTier = 'MEDIUM'; // e.g., BLIND_PAYMENT
+    } else if (hasLedger) {
+      // Ledger only — normal for some cases
+      if (ledgerViaProximity) confidenceTier = 'MEDIUM';
+    } else if (bankAmbiguous || ledgerAmbiguous) {
+      // Ambiguous candidate signal
+      confidenceTier = 'MEDIUM';
+    }
+
+    // If status is UNRESOLVED but we had an ambiguous signal (not NO_CANDIDATE), upgrade to LOW
+    if (status === 'UNRESOLVED' && unresolvedReason === 'AMBIGUOUS_CANDIDATES') {
+      confidenceTier = 'LOW';
+    }
+
     return {
       settlement: s,
       bankMatch: hasBank ? bankMatch : null,
@@ -183,13 +222,8 @@ function matchThreeWay(settlementRecords, bankLines, ledgerEntries, opts = {}) {
       waterfallOk: s.waterfallOk,
       // Surfaced so the LLM exception layer (Day 4) and audit trail (Day 6)
       // don't have to re-derive why nothing matched.
-      unresolvedReason:
-        status === 'UNRESOLVED'
-          ? (bankMatch && bankMatch.method === 'AMBIGUOUS_PROXIMITY') ||
-            (ledgerMatch && ledgerMatch.method === 'AMBIGUOUS_PROXIMITY')
-            ? 'AMBIGUOUS_CANDIDATES'
-            : 'NO_CANDIDATE_FOUND'
-          : null,
+      unresolvedReason,
+      confidenceTier,
     };
   });
 
