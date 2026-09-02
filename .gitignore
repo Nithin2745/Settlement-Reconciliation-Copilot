@@ -3,3 +3,4 @@ node_modules/
 *.log
 fixtures/settlement-recon-captured.json
 recon.sqlite
+FINAL_Settlement_Reconciliation_Copilot_Master_Doc.md
