@@ -243,42 +243,27 @@ function applyCaseType(base, caseType, { rng, groupExtras } = {}) {
     }
 
     case 'BLIND_PAYMENT': {
-      // Bank record loses order_id/receipt/utr but keeps amount + date
+      // Bank record loses order_id/receipt/utr but keeps amount + date.
+      // Settlement references are stripped and no ledger entry exists yet —
+      // simulating a blind payment via Smart Collect (virtual account/UPI).
+      settlement.order_id = null;
+      settlement.order_receipt = null;
+      settlement.settlement_utr = null;
       bank.refs.utr = null;
       bank.refs.orderId = null;
       bank.refs.orderReceipt = null;
-      bank.refs.narration = `UPI CR ${rng.int(1, 9)
-        .toString()
-        .padStart(16, '0')} rpy.payto00000${rng.choice([
-        'acmevendor',
-        'blueleaf',
-        'zenretail',
-        'northgate',
-        'kiranashop',
-      ])}@${rng.choice(['icici', 'hdfc', 'sbi', 'axis', 'kotak'])}`;
 
-      // Generate an unlinked ledger entry: same amount, no references, different
-      // date (created earlier, before settlement). This is the target the LLM
-      // will try to bind to via the narration.
-      const blindLedgerEntry = {
-        externalId: `ledger_blind_${base.entityId}`,
-        source: 'ledger',
-        amount: base.amount, // gross amount, same as bank net (waterfall is clean)
-        date: isoAt(base.createdOffset - rng.int(1, 5) * DAY_MS), // raised 1-5 days before settlement
-        refs: {
-          utr: null,
-          orderId: null,
-          orderReceipt: null,
-          narration: null,
-        },
-      };
-      ledgerRecords.push(blindLedgerEntry);
-      gt.trueLedgerExternalIds.push(blindLedgerEntry.externalId);
+      const customerId = `${pad(rng.int(10000000, 99999999), 8)}${pad(rng.int(10000000, 99999999), 8)}`;
+      const descriptor = rng.choice(VENDOR_DESCRIPTORS);
+      const bankName = rng.choice(BANKS);
+      bank.refs.narration = `UPI CR ${customerId} rpy.payto00000${descriptor}@${bankName}`;
 
+      ledgerRecords = [];
+      gt.trueLedgerExternalIds = [];
       gt.needsAiReview = true;
       gt.note =
-        'Blind payment: bank line has amount + Smart Collect narration (UPI ID + vendor name), ' +
-        'ledger has an unlinked invoice (no order_id/receipt/utr). LLM must bind via narration parsing.';
+        'Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; ' +
+        'no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.';
       break;
     }
 

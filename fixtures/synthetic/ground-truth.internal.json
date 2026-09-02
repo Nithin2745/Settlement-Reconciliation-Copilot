@@ -14,7 +14,7 @@
     "pay_SYN0000001": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000001"
       ],
@@ -23,7 +23,7 @@
     "pay_SYN0000003": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000003"
       ],
@@ -32,7 +32,7 @@
     "pay_SYN0000005": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000005"
       ],
@@ -107,7 +107,7 @@
     "pay_SYN0000019": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000019"
       ],
@@ -127,7 +127,7 @@
     "pay_SYN0000023": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000023"
       ],
@@ -242,7 +242,7 @@
     "pay_SYN0000045": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000045"
       ],
@@ -306,7 +306,7 @@
     "pay_SYN0000057": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000057"
       ],
@@ -421,7 +421,7 @@
     "pay_SYN0000079": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000079"
       ],
@@ -543,7 +543,7 @@
     "pay_SYN0000103": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000103"
       ],
@@ -570,7 +570,7 @@
     "pay_SYN0000109": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000109"
       ],
@@ -732,7 +732,7 @@
     "pay_SYN0000141": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000141"
       ],
@@ -796,7 +796,7 @@
     "pay_SYN0000153": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000153"
       ],
@@ -992,7 +992,7 @@
     "pay_SYN0000189": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000189"
       ],
@@ -1089,7 +1089,7 @@
     "pay_SYN0000207": {
       "caseType": "BLIND_PAYMENT",
       "needsAiReview": true,
-      "note": "No order/receipt/UTR anywhere -- resolved by amount+date proximity alone (single weak signal). matchEngine reports PARTIAL_BANK_ONLY (matched), but this is exactly the low-confidence resolution the LLM should re-examine using the Smart Collect narration, per master doc 4.2.",
+      "note": "Blind payment: bank credit via Smart Collect (virtual account / UPI ID) with no invoice reference; no ledger entry exists. Deterministic engine marks PARTIAL_BANK_ONLY (LOW confidence); LLM must parse narration to identify vendor/customer.",
       "trueBankExternalIds": [
         "bank_pay_SYN0000207"
       ],
