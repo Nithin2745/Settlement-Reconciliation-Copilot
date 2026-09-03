@@ -1,15 +1,15 @@
 // scripts/verifySyntheticData.js
 //
 // Day 2 regression guard. Loads (or generates) the synthetic batch, runs it
-// through the real Day 1 normalizer and Day 2 matcher, and checks structural
+// through the real Day 1 normalizer and match engine, and checks structural
 // sanity per case type — e.g. "every AMOUNT_MISMATCH record ends up
 // PARTIAL_LEDGER_ONLY with waterfallOk:false", not "the AI got 94% precision"
 // (that's Day 3's evaluation layer, once ground truth is used as an actual
 // scoring answer key rather than a structural sanity check).
 //
 // This is intentionally NOT the evaluation layer. It answers: "did the
-// generator + Day 1 + Day 2 pipeline behave the way the generator's own design
-// says it should?"
+// generator + Day 1 engine + Day 2 corpus behave the way the generator's own
+// design says it should?"
 //
 // The one place it does touch ground truth as an answer key is the silent-miss
 // check, and that is deliberate: a record the generator marked needsAiReview

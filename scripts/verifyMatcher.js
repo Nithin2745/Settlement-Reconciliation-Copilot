@@ -1,6 +1,6 @@
 // scripts/verifyMatcher.js
 //
-// Day-2 smoke test for the deterministic match engine. Runs the four
+// Day-1 smoke test for the deterministic match engine. Runs the four
 // settlement records from fixtures/settlement-recon-sample.json against a
 // small hand-built mock bank statement + ledger, deliberately covering all
 // four outcomes the engine supports:
