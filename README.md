@@ -422,7 +422,7 @@ dashboard 93, audit-db 61, synthetic 47. The adapter and matcher suites assert t
 |---|---|---|
 | `npm run verify-adapter` | [scripts/verifyAdapter.js](scripts/verifyAdapter.js) | Ingestion, normalization and the net-settlement waterfall work end to end |
 | `npm run verify-matcher` | [scripts/verifyMatcher.js](scripts/verifyMatcher.js) | All four match outcomes reproduced on a hand-written fixture where every expectation is asserted by name |
-| `npm run generate-synthetic` | [scripts/generateSyntheticData.js](scripts/generateSyntheticData.js) | Writes a reproducible dataset to `fixtures/synthetic/` |
+| `npm run generate-synthetic` | [scripts/generateSyntheticData.js](scripts/generateSyntheticData.js) | Writes a reproducible dataset to `fixtures/synthetic/` for inspection. **Not** part of `npm test` — the suites and the runners build the same batch in memory from the same seed |
 | `npm run verify-synthetic` | [scripts/verifySyntheticData.js](scripts/verifySyntheticData.js) | 47 structural + routing invariants against the 120-record batch and its ground truth |
 | `npm run verify-llm-layer` | [scripts/verifyLlmLayer.js](scripts/verifyLlmLayer.js) | The whole Day 3 layer with **no network access**: payload shapes, the acceptance gate, orchestration, failover/retry/breaker/`retry-after` behaviour against a mocked `fetch`, and the evaluation layer against ground truth |
 | `npm run verify-audit-db` | [scripts/verifyAuditDb.js](scripts/verifyAuditDb.js) | The audit trail against a throwaway SQLite file: schema, run lifecycle, field round-trips, per-run isolation, CSV escaping, and one end-to-end pass through the **real** matcher and orchestrator proving the trail accounts for every record exactly once |
