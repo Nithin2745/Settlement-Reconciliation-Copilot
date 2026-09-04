@@ -13,15 +13,15 @@ earned.** An exact-reference hit whose amount disagrees is a flagged match, not 
 
 ---
 
-## Status — Days 1–4
+## Status — Days 1–4 complete, scope frozen
 
 | Day | Scope | State |
 |---|---|---|
 | **Day 1** | Ingestion, normalization, waterfall validation, deterministic 3-way match engine | Complete |
 | **Day 2** | Synthetic bank statement + ledger generators, ground-truth answer key, batch stress test | Complete |
 | **Day 3** | LLM exception layer (Groq primary, OpenRouter fallback), constrained JSON, acceptance gate, evaluation metrics | Complete |
-| **Day 4** | SQLite audit trail + live 120-record run, [DECISIONS.md](DECISIONS.md) | Complete |
-| Day 4 | Dashboard over the audit trail, scope freeze | In progress |
+| **Day 4** | SQLite audit trail + live 120-record run, read-only dashboard over the trail, [DECISIONS.md](DECISIONS.md), [scope freeze](DECISIONS.md#scope-freeze--4-september-2026) | Complete |
+| Day 5 | Demo recording and submission buffer. No coding | Pending |
 
 The live Razorpay path is verified against real test-mode credentials: `npm run capture-fixture`
 authenticates, calls `settlements.reports({ year, month, day })`, paginates and writes
@@ -336,6 +336,64 @@ Three design points worth naming:
   nothing right yet. Only *accepted* decisions are scored: crediting the model for an answer the gate
   threw away would flatter it.
 
+### Read-only dashboard
+
+```bash
+npm run dashboard
+```
+
+| File | Role |
+|---|---|
+| [src/dashboard/server.js](src/dashboard/server.js) | The whole server — `node:http`, zero dependencies, GET/HEAD only |
+| [src/dashboard/public/index.html](src/dashboard/public/index.html) | One static page. No framework, no build step |
+| [src/dashboard/public/app.js](src/dashboard/public/app.js) | Renders the API responses; polls only while a run is still being written |
+| [src/dashboard/public/app.css](src/dashboard/public/app.css) | The resolution-path palette, defined once so the bar, the pills and the legend cannot drift |
+| [scripts/dashboard.js](scripts/dashboard.js) | Thin CLI wrapper — one port argument, prints the security posture, closes the SQLite handle on Ctrl-C |
+
+Five read routes: `/api/runs`, `/api/runs/:id`, `/api/runs/:id/rows`, and `export.csv` /
+`export.json` per run. Every one is a thin pass-through to a function
+[src/db/auditDb.js](src/db/auditDb.js) already exposed and `verify-audit-db` already covers.
+
+Four properties are structural rather than conventional, which is the reason this is a hand-written
+server rather than an Express app:
+
+- **Read-only by construction.** Every verb that is not GET or HEAD is refused with `405` and an
+  `Allow: GET, HEAD` header *before any routing happens*. It is one branch at the top of the handler,
+  so it is a policy rather than an omission each route has to remember. `POST /api/does-not-exist`
+  gets 405, not 404 — asserted, because that ordering is the whole claim: **the viewer cannot alter a
+  reconciliation result.**
+- **A static allowlist, not a directory walk.** Three files, four exact pathnames, one `Map`. No
+  request-controlled string ever reaches `path.join`, so `/../../.env` and `/%2e%2e/%2e%2e/.env` 404
+  through the same code path as any unknown file — there is no traversal to defend against because
+  there is no resolution step.
+- **It polls, and only while the run is live.** `runs.status === 'running'` is the only thing that
+  arms the timer; a finished run is immutable, so polling it would be three queries a second for no
+  new facts. WAL mode in `auditDb.getDb` is what makes reading a run mid-write safe at all, and this
+  is the feature that cashes that in.
+- **Nothing from the database is ever written as HTML.** Every value goes through `textContent` or
+  `createElement`. A narration field is merchant-controlled text arriving from a bank statement, and
+  it is rendered on the same page as an audit trail.
+
+**No authentication.** The whole reconciliation trail is readable by anyone who can reach the port,
+so the default bind is `127.0.0.1` and a non-loopback `DASHBOARD_HOST` prints a boxed
+`NO AUTHENTICATION` warning at startup rather than binding quietly. That is a mitigation, not a
+solution — see [Known limitations](#known-limitations).
+
+What the page shows, in the order it shows it: the six headline tiles (records, resolved by rules, AI
+accepted, held for a human, silent misses, AI match precision), the stacked `resolution_path` bar with
+a plain-English gloss per path, the scorecards (match status, ground-truth verdicts, the ADR-001 and
+ADR-002 numbers, and why the gate rejected what it rejected), and the per-record table. Clicking a
+record opens the full chain for it: what the engine matched and how, the signals it raised, the path
+it took, what the model proposed, what the gate did about it — including any reason code the gate
+dropped, shown struck through next to the ones that survived — the ground-truth verdict, and the run
+and row it came from.
+
+Two numbers deliberately appear in only one place each. The three partition tiles are derived from
+`byResolutionPath` alone so they sum to the record total exactly; `pipeline.leftForHuman` (22) and
+`endToEndCoverage` (81.7%) differ from the path-derived figures (20 and 83.3%) because two accepted
+decisions were `REJECT_MATCH`/`NO_MATCH_FOUND` rather than matches, so both live in the labelled
+scorecard under their own names instead of contradicting a tile.
+
 ---
 
 ## Quick start
@@ -354,7 +412,7 @@ Fixture mode is the default and needs no keys at all.
 npm test
 ```
 
-That runs all five verification suites in order, with no network access. Individually:
+That runs all six verification suites in order, with no network access. Individually:
 
 | Command | Target | What it proves |
 |---|---|---|
@@ -364,6 +422,8 @@ That runs all five verification suites in order, with no network access. Individ
 | `npm run verify-synthetic` | [scripts/verifySyntheticData.js](scripts/verifySyntheticData.js) | 47 structural + routing invariants against the 120-record batch and its ground truth |
 | `npm run verify-llm-layer` | [scripts/verifyLlmLayer.js](scripts/verifyLlmLayer.js) | The whole Day 3 layer with **no network access**: payload shapes, the acceptance gate, orchestration, failover/retry/breaker/`retry-after` behaviour against a mocked `fetch`, and the evaluation layer against ground truth |
 | `npm run verify-audit-db` | [scripts/verifyAuditDb.js](scripts/verifyAuditDb.js) | The audit trail against a throwaway SQLite file: schema, run lifecycle, field round-trips, per-run isolation, CSV escaping, and one end-to-end pass through the **real** matcher and orchestrator proving the trail accounts for every record exactly once |
+| `npm run verify-dashboard` | [scripts/verifyDashboard.js](scripts/verifyDashboard.js) | The dashboard: every write verb refused before routing, traversal attempts 404 by allowlist, the read API's null-vs-`[]` fidelity, export headers, and one real loopback bind with three real requests over TCP |
+| `npm run dashboard` | [scripts/dashboard.js](scripts/dashboard.js) | Serves the trail read-only on `http://127.0.0.1:4000`. **Not** part of `npm test` |
 | `npm run run-exception-layer` | [scripts/runExceptionLayer.js](scripts/runExceptionLayer.js) | The real thing. Live Groq/OpenRouter calls, then the evaluation block. **Not** part of `npm test` |
 | `npm run run-pipeline` | [scripts/runFullPipeline.js](scripts/runFullPipeline.js) | The same, plus the audit trail written to `data/audit.db` as it goes. **Not** part of `npm test` |
 
@@ -390,6 +450,16 @@ is gitignored, so nothing about a run is committed:
 ```bash
 npm run run-pipeline -- 120 42
 ```
+
+Then read the trail. The dashboard is a viewer, not a second copy of the data — it opens the same
+`data/audit.db` read-only, so it can be left running while the pipeline above writes into it:
+
+```bash
+npm run dashboard
+```
+
+`http://127.0.0.1:4000`, or `npm run dashboard -- 4100` for a different port. Loopback only, because
+there is no authentication.
 
 ---
 
@@ -568,6 +638,13 @@ wrong. The alternative was a nicer-looking percentage over fewer answered record
   has no payment or settlement history, so the capture is an empty collection. Confirming real
   `settlement_utr` semantics needs a settled test payment, not code.
 - **No linter or CI.** Deliberately out of scope for a 5-day build; `npm test` is the gate.
+- **The dashboard has no authentication, and no authorization model to add one to.** Anyone who can
+  reach the port reads the entire reconciliation trail — settlement amounts, bank references, ledger
+  ids, every LLM proposal. The mitigations are that it is read-only by construction (no verb but GET
+  and HEAD is served, so the trail cannot be altered through it) and that it binds `127.0.0.1` by
+  default and warns loudly when told to bind anything else. Neither is a substitute for auth. It is
+  a local review tool for a 5-day build, and anything beyond that needs a real identity layer in
+  front of it before it is exposed to a network.
 - **Dates are compared with day-granularity windows**, not settlement-cycle awareness. A merchant on
   a weekly settlement schedule would need a wider bank window than the 3-day default (it is a
   constructor option, not a constant).
@@ -590,11 +667,18 @@ name.
 covered by a fifth verification suite, and exercised by a real 120-record run. The trail records what
 the model was shown (`offeredCandidateIds`), what it said (`llm_raw_reason_codes`), what the gate did
 about it (`llm_reason_codes`, `validation_reason`, `validation_warnings`) and which of the six
-`resolution_path` values every record ended on. The four ADRs are written up in
+`resolution_path` values every record ended on. The ADRs are written up in
 [DECISIONS.md](DECISIONS.md).
 
-**Day 4, remaining** — A read-only dashboard over the trail; `getRunProgress()`, `getAuditRows()`,
-`exportAuditCsv()` and `exportAuditJson()` are built and tested but nothing consumes them yet. Then
-scope freeze.
+The read-only dashboard over that trail is built too ([src/dashboard/](src/dashboard/),
+[scripts/dashboard.js](scripts/dashboard.js)) — `node:http`, zero new dependencies, one static page,
+GET and HEAD only — and covered by a sixth suite, [ADR-005](DECISIONS.md#adr-005--the-dashboard-is-read-only-by-construction-not-by-omission).
+`npm test` is 318 asserts across six suites, all passing with no network access. Both prior runs are
+visible in the same run selector, which is the payoff of keying the trail by `run_id`: the
+rate-limit regression and its fix sit side by side.
+
+**Day 4, remaining** — Nothing. The build is frozen; see
+[DECISIONS.md § Scope freeze](DECISIONS.md#scope-freeze--4-september-2026) for what is in, what is
+deliberately out, and the one exception that still permits a code change before submission.
 
 **Day 5** — Demo recording and submission buffer. No coding.

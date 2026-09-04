@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Settlement Reconciliation Copilot — audit trail</title>
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">&#9678;</span>
+        <div>
+          <h1>Settlement Reconciliation Copilot</h1>
+          <p class="brand-sub">
+            Audit trail &mdash; deterministic rules decide, the LLM only proposes
+          </p>
+        </div>
+      </div>
+
+      <div class="run-picker">
+        <label for="run-select">Run</label>
+        <select id="run-select" aria-describedby="run-meta">
+          <option value="">Loading&hellip;</option>
+        </select>
+        <span id="live-badge" class="badge badge-live" hidden>&#9679; live</span>
+        <button id="refresh" type="button" class="btn">Refresh</button>
+      </div>
+    </header>
+
+    <main id="main">
+      <p id="banner" class="banner" role="status" hidden></p>
+      <p id="run-meta" class="run-meta"></p>
+
+      <section aria-labelledby="tiles-h">
+        <h2 id="tiles-h" class="section-h">Where the records went</h2>
+        <div id="tiles" class="tiles"></div>
+      </section>
+
+      <section aria-labelledby="path-h">
+        <h2 id="path-h" class="section-h">
+          Resolution path
+          <span class="muted">&mdash; six values that partition the batch, no record in two</span>
+        </h2>
+        <div id="path-bar" class="pathbar" role="img" aria-label="Resolution path breakdown"></div>
+        <ul id="path-legend" class="legend"></ul>
+      </section>
+      <section aria-labelledby="score-h">
+        <h2 id="score-h" class="section-h">
+          Scorecard
+          <span class="muted">
+            &mdash; graded against a ground-truth key neither layer is allowed to read
+          </span>
+        </h2>
+        <div id="scorecards" class="scorecards"></div>
+      </section>
+
+      <section aria-labelledby="rows-h">
+        <h2 id="rows-h" class="section-h">Per-record trail</h2>
+
+        <div class="filters">
+          <div class="filter">
+            <label for="f-path">Path</label>
+            <select id="f-path"><option value="">all</option></select>
+          </div>
+          <div class="filter">
+            <label for="f-status">Match status</label>
+            <select id="f-status"><option value="">all</option></select>
+          </div>
+          <div class="filter">
+            <label for="f-verdict">Verdict</label>
+            <select id="f-verdict"><option value="">all</option></select>
+          </div>
+          <div class="filter filter-grow">
+            <label for="f-search">Search</label>
+            <input
+              id="f-search"
+              type="search"
+              placeholder="entity id, UTR, match id, reason code&hellip;"
+              autocomplete="off"
+            />
+          </div>
+          <p id="row-count" class="row-count" role="status"></p>
+          <span class="exports">
+            <a id="export-csv" class="btn btn-quiet" href="#" download>CSV</a>
+            <a id="export-json" class="btn btn-quiet" href="#" download>JSON</a>
+          </span>
+        </div>
+        <div class="table-wrap">
+          <table id="rows-table">
+            <caption class="sr-only">
+              Every record in the selected run, with the match the deterministic
+              engine made, the path it took, and the LLM decision if one was needed.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Record</th>
+                <th scope="col">Status</th>
+                <th scope="col">Tier</th>
+                <th scope="col">Bank match</th>
+                <th scope="col">Ledger match</th>
+                <th scope="col">Path</th>
+                <th scope="col">LLM decision</th>
+                <th scope="col">Conf.</th>
+                <th scope="col">Verdict</th>
+              </tr>
+            </thead>
+            <tbody id="rows-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <footer class="foot">
+        <p>
+          Read-only view over <code>data/audit.db</code>. No authentication &mdash;
+          bound to <code id="foot-host">127.0.0.1</code> for exactly that reason.
+        </p>
+      </footer>
+    </main>
+
+    <div id="drawer" class="drawer" hidden role="dialog" aria-labelledby="drawer-h" aria-modal="false">
+      <div class="drawer-head">
+        <h2 id="drawer-h">Record</h2>
+        <button id="drawer-close" type="button" class="btn btn-quiet" aria-label="Close details">
+          &times;
+        </button>
+      </div>
+      <div id="drawer-body" class="drawer-body"></div>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

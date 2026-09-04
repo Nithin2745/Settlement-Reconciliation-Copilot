@@ -2,7 +2,7 @@
 
 Settlement Reconciliation Copilot — Razorpay AI Builder Internship 2026, Track 4.
 
-Four decisions shaped this build. Each one is written up the same way: what was decided, what forced
+Five decisions shaped this build. Each one is written up the same way: what was decided, what forced
 it, what it costs, and where in the code it actually lives. The consequences sections are not
 speculative — every number in them was measured on the 120-record synthetic batch (seed 42) or on live
 provider traffic, and the [README build log](README.md#build-log--real-bugs-found-and-fixed) has the
@@ -12,7 +12,7 @@ failures behind them.
 
 ## ADR-001 — Deterministic rules decide; the LLM only proposes
 
-**Status:** accepted, and it is the decision the other three serve.
+**Status:** accepted, and it is the decision the other four serve.
 
 ### Decision
 
@@ -220,7 +220,7 @@ not stubbed out and hoped for.
 
 ### Consequences
 
-- `npm test` runs five suites, 225 asserts, with **no network access and no API keys**. A flaky provider
+- `npm test` runs six suites, 318 asserts, with **no network access and no API keys**. A flaky provider
   or a missing key cannot break the build.
 - The live path is verified against real test-mode credentials: `npm run capture-fixture`
   authenticates, calls `settlements.reports({ year, month, day })`, paginates on `skip` and writes the
@@ -255,6 +255,99 @@ one-file change.
 
 ---
 
+## ADR-005 — The dashboard is read-only by construction, not by omission
+
+**Status:** accepted.
+
+### Decision
+
+The viewer over the audit trail is a `node:http` server in one file
+([src/dashboard/server.js](src/dashboard/server.js)) serving one static page — no Express, no bundler,
+no client framework, no new dependency in `package.json`. Two properties are enforced structurally
+rather than by convention:
+
+1. **Every verb that is not GET or HEAD is refused with `405` and an `Allow: GET, HEAD` header before
+   any routing happens.** One branch at the top of the handler, above the router, so a write cannot
+   reach a route at all.
+2. **Static files are served from a three-entry allowlist keyed by exact pathname.** No
+   request-controlled string is ever passed to `path.join`.
+
+It polls `/api/runs/:id` while a run's status is `running` and stops when it is not.
+
+### Context
+
+The trail already had its read surface — `getRunProgress()`, `getAuditRows()`, `exportAuditCsv()`,
+`exportAuditJson()` — built and covered by `verify-audit-db` before any of this existed. So the
+dashboard is a *presentation* layer over tested functions, and the only genuinely new risk it
+introduces is that it is the first thing in the project that listens on a socket.
+
+Express would have been the reflex, and it would have been the only new dependency in a project that
+otherwise has three. It buys routing and middleware for five GET routes and one regex. What it does
+not buy is either property above: a write path exists in Express by default and is closed
+route-by-route, which means it is closed by remembering to.
+
+"Read-only" is the load-bearing claim for a *reconciliation* viewer specifically. A tool that can
+alter an audit trail is not an audit trail. Making that a property of the handler's first branch means
+it is one assert, not a review of every route — and `POST /api/does-not-exist` returning 405 rather
+than 404 is the assert that proves the ordering, because a 404 there would mean routing ran first and
+the refusal is per-route after all.
+
+The traversal decision is the same shape. The usual defence is to resolve the path and then check that
+it is still inside the public directory — correct, and dependent on getting the normalization right
+against percent-encoding, backslashes on Windows, and Unicode. An allowlist has no normalization step
+to get wrong: `/../../.env` is not a key in the map, so it 404s through the same line as `/nope.css`.
+
+Polling rather than streaming, and only while the run is live: WAL mode in `auditDb.getDb` is what
+makes a reader safe against the pipeline writing the same run, which is the *reason* a progress view
+is real rather than an animation. But a finished run is immutable, so continuing to poll it would be
+three queries a second for no new facts. SSE would have meant a write-side notification path into a
+module that deliberately knows nothing about its readers.
+
+### Consequences
+
+- Zero new dependencies. `package.json` still lists `better-sqlite3`, `dotenv`, `razorpay`.
+- 93 asserts in [scripts/verifyDashboard.js](scripts/verifyDashboard.js), taking `npm test` to 318
+  across six suites. All but one section drives the exported handler with a stub `req`/`res` and binds
+  no port; section F binds `127.0.0.1:0` once and makes three real requests, because a router that is
+  correct in isolation and never actually served is not a dashboard.
+- `null` and `[]` survive the trip to the client. `parseJsonColumns` parses the four JSON columns but
+  leaves `null` as `null`, so the `jsonOrNull` distinction the trail is careful about (see ADR-004)
+  is not quietly flattened on the way out. Asserted per shape, in both directions.
+- A malformed audit cell is shown rather than swallowed: a JSON parse failure leaves the raw text in
+  place instead of substituting an empty array, because a reviewer should see it.
+- Nothing from the database is written as HTML — every value goes through `textContent` or
+  `createElement`. Bank narration is merchant-controlled text, and it renders on the same page as the
+  trail.
+- **There is no authentication, and this is the one place where the structural approach only
+  mitigates.** Anyone who can reach the port reads the entire trail. The bind defaults to `127.0.0.1`
+  and a non-loopback `DASHBOARD_HOST` prints a boxed `NO AUTHENTICATION` warning naming the host
+  rather than binding quietly — `warnIfHostIsExposed` is asserted to fire, and `isLoopbackHost` has a
+  twelve-case truth table, because a silent non-loopback bind is the failure mode worth a test. It is
+  a local review tool; exposing it to a network needs a real identity layer in front of it.
+- The dashboard is where the two conflicting "left for a human" figures surfaced, and the honest fix
+  was presentational: the partition tiles derive from `byResolutionPath` alone so they sum to the
+  record total exactly, and `pipeline.leftForHuman` / `endToEndCoverage` appear only in the labelled
+  scorecard. Two numbers that disagree are two different questions; showing both without saying which
+  is which is how a dashboard starts lying.
+
+### Where it lives
+
+[src/dashboard/server.js](src/dashboard/server.js) (the 405-before-routing branch, the allowlist,
+`parseJsonColumns`, `isLoopbackHost`, `warnIfHostIsExposed`) ·
+[src/dashboard/public/](src/dashboard/public/) (one page, one stylesheet, one script) ·
+[scripts/dashboard.js](scripts/dashboard.js) · [src/config.js](src/config.js) (`dashboard.port`,
+`dashboard.host`, `dashboard.pollMs`) · [scripts/verifyDashboard.js](scripts/verifyDashboard.js)
+
+### What would change it
+
+Multi-user access. The moment more than one person needs this, the answer is not to bolt a password
+onto a `node:http` handler — it is to put the read API behind whatever already authenticates the rest
+of the environment, at which point Express or a real framework earns its place. Nothing about the
+read-only property or the allowlist would change; both get stricter under multi-user access, not
+looser.
+
+---
+
 ## Decisions deliberately left open
 
 Two, both documented with the evidence rather than resolved by assertion. See
@@ -269,3 +362,65 @@ Two, both documented with the evidence rather than resolved by assertion. See
    the cost is that what the LLM demonstrably handles shrinks to blind payments, ambiguous pairs and
    amount mismatches. The master doc treats bulk settlement as an LLM exception case, so it is left as
    one. This is a scope call, not a code one.
+
+---
+
+## Scope freeze — 4 September 2026
+
+The build is frozen here. Day 5 is a buffer for the demo recording and submission, not for code.
+
+### What is in, and done
+
+| Layer | State |
+|---|---|
+| Ingestion, normalization, waterfall validation | Shipped, `verify-adapter` |
+| Deterministic 3-way match engine (ADR-001) | Shipped, `verify-matcher` |
+| Seeded synthetic corpus + hidden ground-truth key | Shipped, `verify-synthetic` |
+| LLM exception layer, acceptance gate, failover (ADR-002, ADR-003) | Shipped, `verify-llm-layer` |
+| Evaluation against ground truth | Shipped, scored on 4 live runs |
+| SQLite audit trail, per-record, keyed by `run_id` | Shipped, `verify-audit-db` |
+| Read-only dashboard over the trail (ADR-005) | Shipped, `verify-dashboard` |
+| ADRs + README | Shipped, this file |
+
+`npm test` is 318 asserts across six suites, no network access, no API keys. That is the gate, and it
+passes.
+
+### What is deliberately out, and stays out
+
+Named so that "it doesn't do X" is a decision on the record rather than something a reviewer has to
+discover:
+
+- **Any write path.** Nothing in this project mutates a reconciliation result after the fact — no
+  manual match override, no "approve this suggestion" button, no resolution workflow. The dashboard
+  serves GET and HEAD only, structurally (ADR-005). A human acting on an escalation does it outside
+  this system, which is the correct boundary for a 5-day build that has no identity layer.
+- **Authentication and authorization.** See ADR-005 and README § Known limitations. The dashboard is
+  loopback-bound with a loud warning, not secured.
+- **1:many matching.** Bulk settlements are *reported* with the arithmetic proof attached, not
+  force-fitted into the 1:1 pool. This is open decision 2, and it stays open.
+- **Settlement-cycle awareness.** Date windows are day-granularity constructor options (bank 3,
+  ledger 30), not a model of weekly or monthly settlement schedules.
+- **Linter, CI, containerization, deployment.** `npm test` is the gate.
+- **A second matcher in the gate.** ADR-002's boundary: the acceptance gate checks structure,
+  provenance and evidence, and does not referee debatable judgment.
+
+### What may still change before submission
+
+Documentation, the demo script and the recording. Plus one exception, stated so it is not a loophole:
+**a defect found while rehearsing the demo gets fixed.** A bug that is visible on camera is a bug
+either way, and a freeze that forces shipping a known-broken path is cargo cult. Anything fixed under
+that exception has to come with an assert in the suite that would have caught it — which is the same
+rule the rest of the build log follows.
+
+### The two things a freeze here explicitly does not claim
+
+1. **Real `settlement_utr` semantics are unconfirmed.** The live path authenticates, paginates and
+   captures, but the test account has never settled a payment, so the capture is a valid empty
+   collection. Every record-shape claim in this repo is measured on the synthetic corpus. This is
+   open decision 1, and no amount of further code closes it.
+2. **Decision accuracy over accepted decisions is 92.6%, not 100%.** Two of the hardest exceptions in
+   the 120-record batch were answered wrong, both conservatively — one `REJECT_MATCH` on a real pair,
+   one `NO_MATCH_FOUND` with the counterpart on the shortlist. Both leave work on a human's desk.
+   Neither puts a wrong match in the books, which is the failure direction the whole design prefers,
+   and AI match precision stays at 100% across every run.
+

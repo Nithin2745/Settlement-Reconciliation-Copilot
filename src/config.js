@@ -106,6 +106,21 @@ const config = {
     // reason there are two of them.
     maxRetryAfterWaitMs: numberFromEnv('LLM_MAX_RETRY_AFTER_WAIT_MS', 5000, { min: 0 }),
   },
+
+  // Day 4: the read-only dashboard over the audit trail (src/dashboard/server.js).
+  // The default bind is loopback ON PURPOSE — the server has no authentication,
+  // so anyone who can reach the port can read the whole reconciliation trail.
+  // Overriding DASHBOARD_HOST to a non-loopback address is supported but warns
+  // loudly at startup rather than doing it silently.
+  dashboard: {
+    // 0 is legal and means "let the OS pick a free port" — that is how the
+    // verification suite binds without needing a port to be free.
+    port: numberFromEnv('DASHBOARD_PORT', 4000, { min: 0, max: 65535 }),
+    host: process.env.DASHBOARD_HOST || '127.0.0.1',
+    // Poll interval the served page uses while a run is still writing. WAL mode
+    // is what makes reading a run mid-write safe at all (see auditDb.getDb).
+    pollMs: numberFromEnv('DASHBOARD_POLL_MS', 2000, { min: 250 }),
+  },
 };
 
 // Fail loudly and early rather than making a confusing API call with empty keys.
