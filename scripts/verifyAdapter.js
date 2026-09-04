@@ -10,6 +10,62 @@ const { config } = require('../src/config');
 const { getSettlementRecon } = require('../src/razorpayAdapter');
 const { normalizeSettlementRecon } = require('../src/normalizeSettlement');
 
+// The three settlement-query knobs are dates, and a date is where
+// `Number(x) || fallback` does the most damage: SETTLEMENT_MONTH=0 and a typo'd
+// SETTLEMENT_YEAR were both falsy, so both silently became *today* and a live
+// fetch would have reconciled against the wrong day while looking healthy. They
+// go through numberFromEnv now, like every other knob in config.js. Every assert
+// below passed silently before that change — which is the point of writing them.
+//
+// Re-requiring config with a cleared cache is how a module that reads process.env
+// once at load time gets tested at all. Env is restored either way.
+function configWith(overrides) {
+  const saved = {};
+  for (const [key, value] of Object.entries(overrides)) {
+    saved[key] = process.env[key];
+    process.env[key] = value;
+  }
+  delete require.cache[require.resolve('../src/config')];
+  try {
+    return require('../src/config').config;
+  } finally {
+    for (const [key, value] of Object.entries(saved)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+    delete require.cache[require.resolve('../src/config')];
+  }
+}
+
+function verifySettlementQueryContract() {
+  const mustThrow = [
+    [{ SETTLEMENT_YEAR: 'twentytwentysix' }, 'a typo\'d SETTLEMENT_YEAR must throw, not become this year'],
+    [{ SETTLEMENT_MONTH: 'septmber' }, 'a typo\'d SETTLEMENT_MONTH must throw, not become this month'],
+    [{ SETTLEMENT_MONTH: '0' }, 'SETTLEMENT_MONTH=0 must throw — months are 1-indexed here'],
+    [{ SETTLEMENT_MONTH: '13' }, 'SETTLEMENT_MONTH=13 must throw'],
+    [{ SETTLEMENT_DAY: '32' }, 'SETTLEMENT_DAY=32 must throw'],
+    [{ SETTLEMENT_YEAR: '1999' }, 'SETTLEMENT_YEAR=1999 must throw — outside the plausible range'],
+  ];
+  for (const [overrides, label] of mustThrow) {
+    assert.throws(() => configWith(overrides), /must be/, label);
+  }
+
+  // Blank must stay undefined rather than defaulting to a real day: the adapter
+  // reads a missing day as "no day-level recon fetch" and throws in live mode,
+  // which is the correct failure. A defaulted day fetches the wrong date instead.
+  // (Blank rather than deleted, because dotenv would repopulate a deleted key
+  // from .env and we would be testing the file, not the contract.)
+  const blankDay = configWith({ SETTLEMENT_DAY: '' });
+  assert.strictEqual(blankDay.settlementQuery.day, undefined, 'a blank SETTLEMENT_DAY must stay undefined');
+
+  const valid = configWith({ SETTLEMENT_YEAR: '2026', SETTLEMENT_MONTH: '9', SETTLEMENT_DAY: '1' });
+  assert.deepStrictEqual(
+    valid.settlementQuery,
+    { year: 2026, month: 9, day: 1 },
+    'a valid date triple must parse to numbers, not strings'
+  );
+}
+
 async function main() {
   console.log(`[verify] mode = ${config.mode}, fixture = ${config.fixturePath}\n`);
 
@@ -44,6 +100,9 @@ async function main() {
   }
 
   console.log('\n[verify] PASS — adapter and normalizer are working end to end.');
+
+  verifySettlementQueryContract();
+  console.log('[verify] PASS — settlement-query config knobs fail early on a bad value (8 assertions).');
 }
 
 main().catch((err) => {

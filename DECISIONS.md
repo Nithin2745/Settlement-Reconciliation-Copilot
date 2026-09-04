@@ -51,6 +51,11 @@ clean one.
   `UNRESOLVED` / `AMBIGUOUS_CANDIDATES`, never a coin flip.
 - The escalation contract (`needsReview` + `signals[]`) had to be designed as a real interface rather
   than a boolean, because the exception layer needs to know *why* a record was escalated.
+- It also decided a dependency: **no fuzzy-matching library**, which the original plan called for. A
+  similarity score is a confident guess wearing a number, and it would have had to sit inside the
+  matcher — the one place this ADR says guesses do not go. Exact-reference priority, single-candidate
+  proximity, and explicit `AMBIGUOUS_PROXIMITY` refusal cover the same ground with no threshold to
+  defend. Written up in [README § Deviations from the original architecture](README.md#deviations-from-the-original-architecture).
 
 ### Where it lives
 
@@ -220,8 +225,9 @@ not stubbed out and hoped for.
 
 ### Consequences
 
-- `npm test` runs six suites, 318 asserts, with **no network access and no API keys**. A flaky provider
-  or a missing key cannot break the build.
+- `npm test` runs six suites and 336 assertions — 318 of them printed as `OK` lines, the adapter and
+  matcher suites asserting through `node:assert` instead — with **no network access and no API keys**.
+  A flaky provider or a missing key cannot break the build.
 - The live path is verified against real test-mode credentials: `npm run capture-fixture`
   authenticates, calls `settlements.reports({ year, month, day })`, paginates on `skip` and writes the
   response. The test account has no payment history, so the capture is a valid empty collection
@@ -306,10 +312,10 @@ module that deliberately knows nothing about its readers.
 ### Consequences
 
 - Zero new dependencies. `package.json` still lists `better-sqlite3`, `dotenv`, `razorpay`.
-- 93 asserts in [scripts/verifyDashboard.js](scripts/verifyDashboard.js), taking `npm test` to 318
-  across six suites. All but one section drives the exported handler with a stub `req`/`res` and binds
-  no port; section F binds `127.0.0.1:0` once and makes three real requests, because a router that is
-  correct in isolation and never actually served is not a dashboard.
+- 93 asserts in [scripts/verifyDashboard.js](scripts/verifyDashboard.js), taking `npm test` to 336
+  assertions across six suites. All but one section drives the exported handler with a stub `req`/`res`
+  and binds no port; section F binds `127.0.0.1:0` once and makes three real requests, because a router
+  that is correct in isolation and never actually served is not a dashboard.
 - `null` and `[]` survive the trip to the client. `parseJsonColumns` parses the four JSON columns but
   leaves `null` as `null`, so the `jsonOrNull` distinction the trail is careful about (see ADR-004)
   is not quietly flattened on the way out. Asserted per shape, in both directions.
@@ -382,8 +388,8 @@ The build is frozen here. Day 5 is a buffer for the demo recording and submissio
 | Read-only dashboard over the trail (ADR-005) | Shipped, `verify-dashboard` |
 | ADRs + README | Shipped, this file |
 
-`npm test` is 318 asserts across six suites, no network access, no API keys. That is the gate, and it
-passes.
+`npm test` is 336 assertions across six suites (318 printed as `OK` lines), no network access, no API
+keys. That is the gate, and it passes.
 
 ### What is deliberately out, and stays out
 
@@ -411,6 +417,32 @@ Documentation, the demo script and the recording. Plus one exception, stated so 
 either way, and a freeze that forces shipping a known-broken path is cargo cult. Anything fixed under
 that exception has to come with an assert in the suite that would have caught it — which is the same
 rule the rest of the build log follows.
+
+### What the final verification pass changed — 5 September 2026
+
+A file-by-file read of all 40 tracked files before recording the demo. It found **no functional
+defect**, which is the headline. Three things did change, all under the rule above:
+
+- **The three settlement-query knobs were still on `Number(x) || fallback`** — the one pattern
+  [src/config.js](src/config.js) has a comment condemning, surviving in the three places where it does
+  the most damage. `SETTLEMENT_MONTH=0` and a typo'd `SETTLEMENT_YEAR` are both falsy, so both silently
+  became *today*: in live mode that reconciles the wrong day while every log line looks healthy. They
+  go through `numberFromEnv` with ranges now. Covered by 8 new assertions in
+  [scripts/verifyAdapter.js](scripts/verifyAdapter.js) — each of which passed silently before the fix,
+  which is the test the rule is asking for.
+- **A dead `weighted()` sampler in [src/synthetic/prng.js](src/synthetic/prng.js)** — never called,
+  because the batch composes exact integer counts and shuffles them instead, and that is *why* the
+  ground truth is reproducible rather than approximately right. Removed, with the reason it does not
+  exist left as a comment. Proof it was dead: the regenerated corpus is byte-identical.
+- **Two documentation claims that were wrong in this repo's own favour.** `npm test` was described as
+  "318 asserts across six suites" — 318 is the count of printed `OK` lines and it comes from four of
+  them, the adapter and matcher asserting through `node:assert` instead. The real figure is 336 across
+  six. Separately, the third deviation from the original plan — **no fuzzy-matching library** — had no
+  line anywhere calling it deliberate, while the other two each had a paragraph. Both fixed; see
+  [README § Deviations from the original architecture](README.md#deviations-from-the-original-architecture).
+
+Nothing in the matcher, the gate, the trail or the dashboard was touched. `npm test` after the pass:
+336 assertions, exit 0.
 
 ### The two things a freeze here explicitly does not claim
 

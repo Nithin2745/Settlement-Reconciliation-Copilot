@@ -46,9 +46,16 @@ const config = {
   },
 
   settlementQuery: {
-    year: Number(process.env.SETTLEMENT_YEAR) || new Date().getFullYear(),
-    month: Number(process.env.SETTLEMENT_MONTH) || new Date().getMonth() + 1,
-    day: process.env.SETTLEMENT_DAY ? Number(process.env.SETTLEMENT_DAY) : undefined,
+    // These went through numberFromEnv late: they were the last three knobs still
+    // on `Number(x) || fallback`, which for a *date* means SETTLEMENT_MONTH=0 or a
+    // typo'd year silently fetches today's month instead of failing. Ranges are
+    // wide on purpose — they catch a fat-fingered value, not a wrong date.
+    year: numberFromEnv('SETTLEMENT_YEAR', new Date().getFullYear(), { min: 2000, max: 2100 }),
+    month: numberFromEnv('SETTLEMENT_MONTH', new Date().getMonth() + 1, { min: 1, max: 12 }),
+    // Stays undefined when unset rather than defaulting to a day: the adapter
+    // reads a missing day as "no day-level recon fetch" and throws in live mode
+    // (razorpayAdapter.js), which is better than quietly fetching the wrong date.
+    day: numberFromEnv('SETTLEMENT_DAY', undefined, { min: 1, max: 31 }),
   },
 
   fixturePath: process.env.FIXTURE_PATH || 'fixtures/settlement-recon-sample.json',

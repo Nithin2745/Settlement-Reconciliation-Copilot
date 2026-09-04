@@ -412,7 +412,11 @@ Fixture mode is the default and needs no keys at all.
 npm test
 ```
 
-That runs all six verification suites in order, with no network access. Individually:
+That runs all six verification suites in order, with no network access. **336 assertions, exit code 0.**
+Four of the suites print one `OK` line per check and account for **318** of them — llm-layer 117,
+dashboard 93, audit-db 61, synthetic 47. The adapter and matcher suites assert through `node:assert`
+(10 and 8 assertions), which throws on failure and prints nothing on success, so they contribute no
+`OK` lines to that 318. Individually:
 
 | Command | Target | What it proves |
 |---|---|---|
@@ -626,6 +630,18 @@ direction (one `REJECT_MATCH` on a real pair, one `NO_MATCH_FOUND` with the answ
 Fixing an infrastructure bug lowered a quality metric by giving the model two more chances to be
 wrong. The alternative was a nicer-looking percentage over fewer answered records.
 
+**A wrong `SETTLEMENT_MONTH` would have reconciled the wrong day and looked healthy doing it.** Found
+in the final pre-submission read, not by a failing test — because there was no test. The three
+settlement-query knobs were still on `Number(x) || fallback`, the exact pattern
+[src/config.js](src/config.js) carries a comment condemning everywhere else: `SETTLEMENT_MONTH=0` and
+`SETTLEMENT_YEAR=twentytwentysix` are both falsy, so both silently resolved to *today*. In fixture mode
+that is invisible, which is why four days of green runs never surfaced it; in live mode it fetches a
+different day's recon and every log line still reads normally — a wrong answer with no error attached,
+which is the failure class this whole project is built to refuse. Fixed by routing all three through
+`numberFromEnv` with ranges, and pinned by 8 assertions in
+[scripts/verifyAdapter.js](scripts/verifyAdapter.js) that all passed silently before the fix. The
+lesson is the one the build log keeps repeating: the dangerous defects are not the ones that throw.
+
 ---
 
 ## Known limitations
@@ -649,14 +665,37 @@ wrong. The alternative was a nicer-looking percentage over fewer answered record
   a weekly settlement schedule would need a wider bank window than the 3-day default (it is a
   constructor option, not a constant).
 
-### Correction vs. the original architecture
+### Deviations from the original architecture
 
-The initial plan assumed an `instance.settlements.settlementRecon({...})` method on the Node SDK.
-That method is **PHP-only**. The Node SDK reuses `instance.settlements.reports({ year, month, day })`
-for day-level recon: pass a `day` and you get the recon line items; omit it and you get the
-settlement-batch summary. Documented at
-[src/razorpayAdapter.js](src/razorpayAdapter.js) and fixed before anything depended on the wrong
-name.
+Three, all deliberate. Named here rather than left for a reviewer to spot.
+
+**1. `settlements.settlementRecon()` → `settlements.reports({ year, month, day })`.** The initial plan
+assumed an `instance.settlements.settlementRecon({...})` method on the Node SDK. That method is
+**PHP-only**. The Node SDK reuses `instance.settlements.reports({ year, month, day })` for day-level
+recon: pass a `day` and you get the recon line items; omit it and you get the settlement-batch summary.
+Documented at [src/razorpayAdapter.js](src/razorpayAdapter.js) and fixed before anything depended on
+the wrong name.
+
+**2. No `groq-sdk` — both providers are called through plain `fetch`.** Groq and OpenRouter both speak
+the OpenAI chat-completions shape, so one request builder serves both and failover is a URL-and-key
+swap rather than a second integration. It is also what makes the failover *testable*: mocking one
+`global.fetch` drives ten real failure scenarios with no network. See
+[ADR-003](DECISIONS.md#adr-003--groq-primary-openrouter-fallback-over-raw-fetch).
+
+**3. No fuzzy-matching library, and nothing replaced it.** The plan named `string-similarity` or
+`fuzzball`. Neither is installed and no similarity scoring happens anywhere in the engine — a
+similarity *score* is the specific mechanism that produces a confident wrong match. It converts "these
+two strings look 0.87 alike" into a reconciliation claim, and there is no threshold that can be
+justified to an auditor afterwards. What covers the same ground is three parts, each explainable on its
+own: **exact-reference priority** across two passes (`settlement_utr`, `order_id`, `order_receipt`)
+before any proximity fallback; **single-candidate proximity** on amount and date, which refuses as
+`AMBIGUOUS_PROXIMITY` the moment a second candidate also fits; and the **LLM reading the narration as
+text** under a closed vocabulary, where `SMART_COLLECT_IDENTIFIER` and `NARRATION_VENDOR_MATCH` do the
+work a fuzzy score would have done — except the claim is checked back against the payload it came from
+([validateDecision.js](src/llm/validateDecision.js)) instead of being trusted as a number. This is the
+[ADR-001](DECISIONS.md#adr-001--deterministic-rules-decide-the-llm-only-proposes) principle applied to
+a dependency: judgment about text goes to the layer that has to justify itself, not to a float.
+`package.json` lists three runtime dependencies, and neither library is among them.
 
 ---
 
@@ -673,7 +712,7 @@ about it (`llm_reason_codes`, `validation_reason`, `validation_warnings`) and wh
 The read-only dashboard over that trail is built too ([src/dashboard/](src/dashboard/),
 [scripts/dashboard.js](scripts/dashboard.js)) — `node:http`, zero new dependencies, one static page,
 GET and HEAD only — and covered by a sixth suite, [ADR-005](DECISIONS.md#adr-005--the-dashboard-is-read-only-by-construction-not-by-omission).
-`npm test` is 318 asserts across six suites, all passing with no network access. Both prior runs are
+`npm test` is 336 assertions across six suites, all passing with no network access. Both prior runs are
 visible in the same run selector, which is the payoff of keying the trail by `run_id`: the
 rate-limit regression and its fix sit side by side.
 
