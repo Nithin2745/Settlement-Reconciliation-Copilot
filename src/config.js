@@ -7,6 +7,28 @@ require('dotenv').config();
 
 const VALID_MODES = ['live', 'fixture'];
 
+// `Number(x) || fallback` is wrong for every knob whose valid range includes 0,
+// and it silently swallows typos: Number('') and Number('typo') are both falsy,
+// so LLM_CONFIDENCE_THRESHOLD=0 (a legitimate "accept everything" ablation) and
+// LLM_CONFIDENCE_THRESHOLD=typo BOTH quietly became the default. Unset falls
+// back; set-but-unparseable throws, per this file's own fail-early contract.
+function numberFromEnv(name, fallback, { min, max } = {}) {
+  const raw = process.env[name];
+  if (raw === undefined || raw === null || raw.trim() === '') return fallback;
+
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed)) {
+    throw new Error(`${name} must be a number, got "${raw}"`);
+  }
+  if (min !== undefined && parsed < min) {
+    throw new Error(`${name} must be >= ${min}, got ${parsed}`);
+  }
+  if (max !== undefined && parsed > max) {
+    throw new Error(`${name} must be <= ${max}, got ${parsed}`);
+  }
+  return parsed;
+}
+
 const mode = (process.env.SETTLEMENT_SOURCE_MODE || 'fixture').toLowerCase();
 
 if (!VALID_MODES.includes(mode)) {
@@ -30,6 +52,47 @@ const config = {
   },
 
   fixturePath: process.env.FIXTURE_PATH || 'fixtures/settlement-recon-sample.json',
+
+  // Day 3: Groq is primary, OpenRouter/Nemotron 3 Super is fallback (ADR-003).
+  // Both are OpenAI-compatible chat-completions endpoints, so llmClient.js can
+  // use one request shape for both. `llama-3.3-70b-versatile` is deprecated as
+  // of June 2026 on Groq, hence gpt-oss-120b as the primary model.
+  llm: {
+    primary: {
+      provider: 'groq',
+      apiUrl: process.env.GROQ_API_URL || 'https://api.groq.com/openai/v1/chat/completions',
+      apiKey: process.env.GROQ_API_KEY || '',
+      model: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
+    },
+    fallback: {
+      provider: 'openrouter',
+      apiUrl: process.env.OPENROUTER_API_URL || 'https://openrouter.ai/api/v1/chat/completions',
+      apiKey: process.env.OPENROUTER_API_KEY || '',
+      model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3-super-120b-a12b:free',
+    },
+    // Below this, a structurally valid decision is still not auto-accepted —
+    // see validateDecision.js. This is a knob, not a hardcoded magic number.
+    confidenceThreshold: numberFromEnv('LLM_CONFIDENCE_THRESHOLD', 0.7, { min: 0, max: 1 }),
+    maxCandidatesPerException: numberFromEnv('LLM_MAX_CANDIDATES', 5, { min: 0 }),
+    requestTimeoutMs: numberFromEnv('LLM_TIMEOUT_MS', 30000, { min: 1 }),
+    // Both configured models are reasoning models: they emit a chain of thought
+    // before the answer. At 500 the reasoning alone exhausted the budget and no
+    // JSON was ever produced — Groq (which enforces response_format) returned
+    // HTTP 400 json_validate_failed with an empty generation, and OpenRouter
+    // (which does not enforce it for Nemotron) returned raw prose that failed to
+    // parse. Measured: 7 of 10 real calls rejected as MALFORMED_JSON. At 2500
+    // every provider/parameter combination parses first try. See ADR-003.
+    maxTokens: numberFromEnv('LLM_MAX_TOKENS', 2500, { min: 1 }),
+    // Retries apply only to the SAME provider before failing over, and only for
+    // transient failures (timeout / 429 / 5xx). A 400 is deterministic — the
+    // request itself is wrong — so retrying it just burns quota.
+    maxAttemptsPerProvider: numberFromEnv('LLM_ATTEMPTS_PER_PROVIDER', 2, { min: 1 }),
+    // After this many consecutive primary failures in one batch, stop trying the
+    // primary at all and go straight to the fallback. Without it, a hard-down
+    // Groq costs one doomed call per record (50 wasted round-trips on a 50-record
+    // batch) before every single fallback call.
+    primaryFailureThreshold: numberFromEnv('LLM_PRIMARY_FAILURE_THRESHOLD', 3, { min: 1 }),
+  },
 };
 
 // Fail loudly and early rather than making a confusing API call with empty keys.
@@ -43,4 +106,17 @@ function assertLiveModeIsConfigured() {
   }
 }
 
-module.exports = { config, assertLiveModeIsConfigured };
+// Same philosophy as assertLiveModeIsConfigured: fail before making a network
+// call, not during one. At least one of the two providers must be usable —
+// the LLM layer's own primary/fallback logic (llmClient.js) handles the case
+// where only one of the two is actually configured.
+function assertLlmIsConfigured() {
+  if (!config.llm.primary.apiKey && !config.llm.fallback.apiKey) {
+    throw new Error(
+      'Neither GROQ_API_KEY nor OPENROUTER_API_KEY is set. ' +
+        'Set at least one in .env before running the LLM exception layer.'
+    );
+  }
+}
+
+module.exports = { config, assertLiveModeIsConfigured, assertLlmIsConfigured, numberFromEnv };

@@ -373,7 +373,12 @@ function matchThreeWay(settlementRecords, bankLines, ledgerEntries, opts = {}) {
     unclaimedLedgerEntries: ledgerPool.length,
   };
 
-  return { summary, results };
+  // Day 3 additive extension: the LLM exception layer needs the actual
+  // leftover records (not just how many), to build candidate shortlists for
+  // PARTIAL_*/UNRESOLVED records. summary.unclaimedBankLines/unclaimedLedgerEntries
+  // (counts) are unchanged above — these are new top-level fields, so nothing
+  // that destructures { summary, results } is affected.
+  return { summary, results, unclaimedBankRecords: bankPool, unclaimedLedgerRecords: ledgerPool };
 }
 
 module.exports = {
@@ -383,4 +388,5 @@ module.exports = {
   buildUtrGroups,
   AMOUNT_FIELD_BY_SOURCE,
   SIGNALS,
+  daysBetween,
 };

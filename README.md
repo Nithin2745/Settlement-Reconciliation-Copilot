@@ -13,13 +13,13 @@ earned.** An exact-reference hit whose amount disagrees is a flagged match, not 
 
 ---
 
-## Status — Days 1 & 2 complete
+## Status — Days 1–3 complete
 
 | Day | Scope | State |
 |---|---|---|
 | **Day 1** | Ingestion, normalization, waterfall validation, deterministic 3-way match engine | Complete |
 | **Day 2** | Synthetic bank statement + ledger generators, ground-truth answer key, batch stress test | Complete |
-| Day 3 | LLM exception layer (Groq primary, OpenRouter fallback), constrained JSON, evaluation metrics | Not started |
+| **Day 3** | LLM exception layer (Groq primary, OpenRouter fallback), constrained JSON, acceptance gate, evaluation metrics | Complete |
 | Day 4 | Dashboard, SQLite audit trail, `DECISIONS.md`, scope freeze | Not started |
 
 The live Razorpay path is verified against real test-mode credentials: `npm run capture-fixture`
@@ -43,6 +43,32 @@ fixtures, which is the point of ADR-004.
 Reproduce with `npm run verify-synthetic`. Holds across every seed and size tested
 (100–1000 records, 10 combinations): deterministic resolution stays at 58–61%, silent misses stay
 at 0.
+
+### Measured end to end with the real LLM layer
+
+Two live runs, `npm run run-exception-layer <size> <seed>`. Every AI number below is scored against
+`ground-truth.internal.json`, which neither the matcher nor the model ever reads.
+
+| Metric | 30 records, seed 42 | 60 records, seed 7 |
+|---|---|---|
+| Deterministic claim precision | 100% (44/44) | 100% (88/88) |
+| Silent misses / silent wrong claims | 0 / 0 | 0 / 0 |
+| Escalation recall | 100% (11/11) | 100% (22/22) |
+| LLM calls made / avoided | 11 / 2 | 22 / 4 |
+| **AI match precision** | **100% (8 named)** | **100% (15 named)** |
+| AI false positives | 0 | 0 |
+| Decision accuracy over accepted | 100% | 93.8% |
+| Rejected by the acceptance gate | 0 | 0 |
+| LLM errors | 0 | 0 |
+| **End-to-end coverage** | **83.3%** | **81.7%** |
+
+The 93.8% on the second run is one `NO_MATCH_FOUND` where a true counterpart *was* on the shortlist —
+a missed opportunity, counted as such rather than quietly scored as a correct decline. On the first
+run the confidence gate blocked one wrong answer at a cost of zero right ones.
+
+Provider mix varies run to run (`{groq: 8, openrouter: 3}` and `{groq: 4, openrouter: 18}`) because
+the free Groq tier rate-limits under load. Both runs completed with zero errors, which is the
+fallback doing exactly what ADR-003 asks of it — unprompted, on real traffic.
 
 ---
 
@@ -167,8 +193,9 @@ No LLM appears anywhere in this file. That is the point (ADR-001).
 records, it also checks whether a bank line carrying that UTR credits *exactly* the sum of the
 group's net amounts. On the synthetic batch that arithmetic proof succeeds for 9 of 9 bulk members —
 meaning bulk settlements can be resolved by addition rather than by inference. Acting on that is a
-Day 3 decision (see [Open decisions](#open-decisions-for-day-3)); computing it costs one pass over
-the bank lines and no inference at all.
+scope decision, still open (see [Open decisions](#open-decisions)); computing it costs one pass over
+the bank lines and no inference at all, and the proof is handed to the model in the payload either
+way.
 
 ### Synthetic corpus & ground truth
 | File | Role |
@@ -202,6 +229,51 @@ order id — the ordinary reality of an accounting system keyed on invoices. Tha
 thing that exercises `EXACT_ORDER_RECEIPT`, which fired 13 times in the current batch and **zero**
 times before it was added.
 
+### LLM exception layer
+
+| File | Role |
+|---|---|
+| [src/llm/selectExceptions.js](src/llm/selectExceptions.js) | Decides which escalated records are worth a call at all, and builds each one's payload |
+| [src/llm/buildCandidatePayload.js](src/llm/buildCandidatePayload.js) | One exception → the exact JSON sent to the model: settlement, deterministic context, and a bounded candidate shortlist |
+| [src/llm/prompt.js](src/llm/prompt.js) | The closed vocabularies (4 decisions, 10 reason codes) and the system prompt built from them |
+| [src/llm/llmClient.js](src/llm/llmClient.js) | Groq → OpenRouter failover, retry classification, timeouts, circuit breaker |
+| [src/llm/validateDecision.js](src/llm/validateDecision.js) | The acceptance gate. Nothing the model says is trusted until this passes |
+| [src/llm/resolveExceptions.js](src/llm/resolveExceptions.js) | Orchestrates the four above over a batch and emits per-record outcomes |
+| [src/eval/evaluateRun.js](src/eval/evaluateRun.js) | Scores what actually happened against ground truth |
+
+The model proposes exactly four things and nothing else:
+
+```json
+{ "candidate_id": string|null, "decision": "CONFIRM_MATCH|REJECT_MATCH|MATCH_CANDIDATE|NO_MATCH_FOUND",
+  "confidence": 0..1, "reason_codes": [ ...closed set ] }
+```
+
+The gate checks, in order: JSON parses (including out of prose the reasoning models leak) → decision
+is in the closed set → confidence is a real number in range → reason codes are in the closed set →
+**`candidate_id` is one this exact exception was actually offered** → the codes are jointly coherent
+with each other, the decision and the payload → confidence clears 0.7.
+
+The hallucination check is the load-bearing one: `candidate_id` is compared against the exact id set
+that record's payload contained, so an invented id is caught by set membership rather than by
+trusting the model's claim that it exists.
+
+Two things the gate deliberately does *not* do. It does not referee debatable judgment — that would
+make it a second, worse matcher. And it does not sink a sound decision over an untidy justification:
+a reason code the payload disproves is dropped and recorded as a warning, leaving the decision
+standing on what survives. Both boundaries were set by real output, not by taste — see the build log.
+
+### Failure handling
+
+`RETRYABLE_STATUS` separates "try again" (408, 429, 5xx, timeouts) from "this request is wrong and
+will stay wrong" (400, 401, 422) — a deterministic 400 fails over to OpenRouter immediately instead
+of burning two doomed round-trips. An HTTP 200 carrying empty `message.content` is treated as a
+failure, not an answer, because that is exactly what a token-budget truncation looks like from the
+outside.
+
+The circuit breaker is batch-scoped: after 3 consecutive primary failures the primary is skipped for
+the rest of the run, and a later success clears the count. Two runs in one process never inherit each
+other's failure state.
+
 ---
 
 ## Quick start
@@ -220,7 +292,7 @@ Fixture mode is the default and needs no keys at all.
 npm test
 ```
 
-That runs all three verification suites in order. Individually:
+That runs all four verification suites in order. Individually:
 
 | Command | Target | What it proves |
 |---|---|---|
@@ -228,11 +300,24 @@ That runs all three verification suites in order. Individually:
 | `npm run verify-matcher` | [scripts/verifyMatcher.js](scripts/verifyMatcher.js) | All four match outcomes reproduced on a hand-written fixture where every expectation is asserted by name |
 | `npm run generate-synthetic` | [scripts/generateSyntheticData.js](scripts/generateSyntheticData.js) | Writes a reproducible dataset to `fixtures/synthetic/` |
 | `npm run verify-synthetic` | [scripts/verifySyntheticData.js](scripts/verifySyntheticData.js) | 47 structural + routing invariants against the 120-record batch and its ground truth |
+| `npm run verify-llm-layer` | [scripts/verifyLlmLayer.js](scripts/verifyLlmLayer.js) | The whole Day 3 layer with **no network access**: payload shapes, the acceptance gate, orchestration, failover/retry/breaker behaviour against a mocked `fetch`, and the evaluation layer against ground truth |
+| `npm run run-exception-layer` | [scripts/runExceptionLayer.js](scripts/runExceptionLayer.js) | The real thing. Live Groq/OpenRouter calls, then the same evaluation block. **Not** part of `npm test` |
+
+`verify-llm-layer` mocks `fetch`, so a missing key or a flaky provider can never break the build.
+That trade has a cost worth naming: its fake caller returns hand-written valid JSON, so no assert in
+it can catch a provider-level formatting failure. `run-exception-layer` is the other half — the
+`max_tokens` bug below passed every offline check and was only ever visible there.
 
 Both generator scripts take optional `size` and `seed` arguments:
 
 ```bash
 node scripts/verifySyntheticData.js 1000 3
+```
+
+The real run takes them too:
+
+```bash
+npm run run-exception-layer -- 30 42
 ```
 
 ---
@@ -264,7 +349,7 @@ exist, so the batch reconciles clean while real money goes unaccounted for.
 
 ---
 
-## Open decisions for Day 3
+## Open decisions
 
 **1. `settlement_utr` semantics on real data.** In the synthetic corpus a shared UTR means a bulk
 settlement, and `SHARED_UTR_GROUP` fires on exactly the 9 bulk records. On **real** Razorpay recon
@@ -278,18 +363,24 @@ payment (`settlements.all`, `payments.all` and month-level `settlements.reports`
 `count: 0`), so confirming the shape requires settlement activity on the account — a test payment
 that has settled — not more code.
 
-**2. Should bulk settlements go to the LLM at all?** `buildUtrGroups()` already proves them by
-arithmetic — the members' nets sum to the single credit, 9 for 9 on the current batch. Resolving
-them deterministically would be strictly more correct than an LLM proposal *and* would cut the
-escalation rate, at the cost of shrinking what the LLM demonstrably handles to blind payments,
-ambiguous pairs and amount mismatches. The master doc treats bulk settlement as an LLM exception
-case, so this is a scope decision, not a code one.
+**2. Should bulk settlements go to the LLM at all?** Still open, still a scope call rather than a code
+one. `buildUtrGroups()` already proves them by arithmetic — the members' nets sum to the single
+credit, 9 for 9 on the current batch — and the payload hands the model that finished proof, so
+`BULK_SETTLEMENT_ARITHMETIC_OK` is the model agreeing with arithmetic it did not have to do.
+Resolving them deterministically would be strictly more correct *and* would cut the escalation rate;
+the cost is that what the LLM demonstrably handles shrinks to blind payments, ambiguous pairs and
+amount mismatches. The master doc treats bulk settlement as an LLM exception case, so it is left as
+one. Changing it would also mean splitting ground truth's `needsAiReview` into "is an exception" vs
+"requires inference" and updating both verification suites.
 
-**3. The "86% of LLM calls avoided" pitch line is not achievable on this dataset.** Measured
-honestly: 60.8% resolved deterministically, 39.2% escalated. Getting to 86% would require either a
-gentler case-type mix (the corpus is deliberately exception-heavy — 39% of it is genuine exceptions
-by construction) or resolving bulk settlements deterministically per decision 2. The number in the
-demo should be the measured one.
+**3. The "86% of LLM calls avoided" pitch line is not achievable on this dataset, and the honest
+number is better anyway.** Measured: 60.8% of records resolve deterministically with zero silent
+misses, and of the records that *are* escalated, 15% need no call because there is nothing to offer
+the model (2 of 13 and 4 of 26 on the two live runs). End-to-end coverage — rules plus AI, counting
+only correctly named counterparts — lands at 81.7–83.3% with 100% AI match precision. The corpus is
+deliberately exception-heavy (39% of it is a genuine exception by construction), which is why the
+deterministic share is lower than a production mix would give. The demo should quote the measured
+numbers.
 
 ---
 
@@ -335,6 +426,42 @@ line. Pinned to `12.2.0`, which ships one. If a reviewer on a different Node ver
 wall, `node:sqlite` (`DatabaseSync`) is a zero-dependency stdlib fallback that supports prepared
 statements and constraint enforcement, verified working on Node 24.
 
+**A `max_tokens` that passed every offline test broke every real call.** Both configured models are
+reasoning models, and both bill chain-of-thought against `max_tokens` — so a 500-token budget was
+spent thinking before a single character of the answer was emitted. Groq returned HTTP 400
+`json_validate_failed` (its `response_format` enforcement failing on a truncated object) and
+OpenRouter returned raw reasoning prose with no JSON in it at all. The mocked suite never saw this
+because a mock returns a complete object regardless of the budget. Raised to 2500 and confirmed on
+live traffic: 0 LLM errors across 4 runs, both providers. The class of bug is the point — anything
+that only manifests against the real endpoint cannot be covered by a mock, which is why
+`run-exception-layer` exists as a separate, real-network script rather than a test.
+
+**My own acceptance gate threw away three correct answers.** The first live run rejected 4 of 11
+decisions; 3 were `CONTRADICTORY_REASON_CODES:EXACT_AMOUNT+AMOUNT_WITHIN_WATERFALL_DRIFT`, and
+ground truth confirmed all three had named the **correct** bank record. The model had padded its
+justification with both amount codes at once; the gate treated that as a contradiction and discarded
+the match. It is not a contradiction — an exact amount *is* trivially within drift, so the two codes
+point the same way and differ only in strictness. Fixed by splitting severity: `OPPOSED_REASON_CODES`
+(genuinely opposite verdicts, e.g. bulk arithmetic OK vs mismatch) still reject, because which code
+is load-bearing changes the answer; `REDUNDANT_AMOUNT_CODES` are now resolved against the payload's
+own `amount_agrees` flag — the surplus code is dropped, a warning is recorded, and the decision
+stands on what survives. Rejecting a right answer over an untidy label buys no safety and costs
+coverage. Rejections went 4 → 0 and accepted 4 → 8 on the same seed. Diagnosed by dumping the real
+payloads next to ground truth rather than guessing which side was wrong.
+
+**The closed vocabulary had a hole, and the model found it twice.** `pay_SYN0000039` was rejected for
+`REASON_CODE_NOT_ALLOWED:EXACT_ORDER_ID` — the model had answered with the matcher's own `method`
+value, copied out of the payload, because there was no way in the allowed list to say *"a shared
+reference ties these two records together"*: the single most common reason a match is trustworthy.
+The model was right and the vocabulary was incomplete. Adding `EXACT_REFERENCE_MATCH` plus a prompt
+rule naming the method values as non-codes was **not** enough — the next run produced the same
+rejection. Fixed by also aliasing the three `EXACT_*` method names to `EXACT_REFERENCE_MATCH` before
+the vocabulary check. That is vocabulary translation, not a loosened contract, and the distinction is
+load-bearing: the alias only ever resolves to a code that must still clear its own evidence
+predicate, so a model echoing a method name on a record with no shared reference is still rejected —
+pinned by an assert that tries exactly that. It is also restricted to strings *we* put in the
+payload, so the model is repeating our own field value rather than inventing a code.
+
 ---
 
 ## Known limitations
@@ -342,7 +469,7 @@ statements and constraint enforcement, verified working on Node 24.
 - **Matching is 1:1 per source.** A bank line or ledger entry, once claimed, is removed from the
   pool. Bulk settlements need 1:many and are therefore *reported* as `SHARED_UTR_GROUP` exceptions
   with the combined net attached, not force-fitted into a 1:1 match. See
-  [Open decisions](#open-decisions-for-day-3).
+  [Open decisions](#open-decisions).
 - **No real settlement records captured.** The live path is verified end to end, but the test account
   has no payment or settlement history, so the capture is an empty collection. Confirming real
   `settlement_utr` semantics needs a settled test payment, not code.
@@ -364,15 +491,10 @@ name.
 
 ## Next steps
 
-**Day 3** — LLM exception layer over the 47 escalated records: Groq (`openai/gpt-oss-120b`) primary
-with an OpenRouter (`nvidia/nemotron-3-super`) fallback tested by deliberately killing the Groq key;
-constrained JSON output (`candidate_id`, `decision`, `confidence`, `reason_codes`); application-side
-validation that the proposed candidate exists, the amount is compatible, the date is compatible, the
-confidence clears threshold and every reason code is in the allowed set. Then the evaluation layer
-scoring deterministic precision, AI precision, false-positive rate and LLM calls avoided against
-`ground-truth.internal.json`.
-
 **Day 4** — Batch dashboard, SQLite audit trail (`better-sqlite3`, already pinned), `DECISIONS.md`
-with ADR 001–004, and scope freeze.
+with ADR 001–004, and scope freeze. The per-record `resolutions` array is already shaped for it:
+every entry carries `offeredCandidateIds`, the model's `rawReasonCodes`, the sanitized `reasonCodes`,
+`validationWarnings` and `validationReason`, so the audit trail can show what the model was shown,
+what it said, and what the gate did about it.
 
 **Day 5** — Demo recording and submission buffer. No coding.
