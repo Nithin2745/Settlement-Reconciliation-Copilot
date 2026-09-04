@@ -24,6 +24,11 @@ const { callLlmWithFallback, createBreaker } = require('./llmClient');
  * @param {object[]} unclaimedLedgerRecords
  * @param {number} [maxCandidatesPerException]
  * @param {function} [llmCaller] - ({systemPrompt, userPrompt, breaker}) => Promise<{raw, provider}>
+ * @param {function} [onResolution] - Day 4: (resolution) => void, fired the instant each
+ *   record resolves. This is what makes the audit trail live rather than a dump at the end;
+ *   the DB module knows nothing about this layer, and this layer knows nothing about SQLite.
+ *   Thrown errors are deliberately NOT caught: a logging bug should fail loudly in the demo,
+ *   not silently produce a half-written trail.
  */
 async function resolveExceptions({
   results,
@@ -31,6 +36,7 @@ async function resolveExceptions({
   unclaimedLedgerRecords,
   maxCandidatesPerException,
   llmCaller = callLlmWithFallback,
+  onResolution = null,
 }) {
   const { reviewable, skipped } = selectExceptions({
     results,
@@ -47,8 +53,15 @@ async function resolveExceptions({
 
   const resolutions = [];
 
+  // Push and notify in one place, so a new outcome branch can never be added
+  // without the audit trail hearing about it.
+  const record = (resolution) => {
+    resolutions.push(resolution);
+    if (onResolution) onResolution(resolution);
+  };
+
   for (const entry of skipped) {
-    resolutions.push({
+    record({
       entityId: entry.result.settlement.entityId,
       status: entry.result.status,
       outcome: 'SKIPPED_NO_CANDIDATES',
@@ -73,7 +86,7 @@ async function resolveExceptions({
     }
 
     if (callError) {
-      resolutions.push({
+      record({
         entityId: result.settlement.entityId,
         status: result.status,
         outcome: 'LLM_ERROR',
@@ -91,7 +104,7 @@ async function resolveExceptions({
         ? 'FLAGGED_LOW_CONFIDENCE'
         : 'REJECTED_BY_VALIDATOR';
 
-    resolutions.push({
+    record({
       entityId: result.settlement.entityId,
       status: result.status,
       outcome,

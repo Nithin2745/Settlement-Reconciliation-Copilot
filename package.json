@@ -5,7 +5,7 @@
   "description": "Razorpay AI Builder Internship 2026 — Track 4 (AI Finance Controller). Reconciles Razorpay settlements against a bank statement and internal ledger; deterministic rules handle certainty, an LLM proposes resolutions only for genuine exceptions.",
   "type": "commonjs",
   "scripts": {
-    "test": "npm run verify-adapter && npm run verify-matcher && npm run verify-synthetic && npm run verify-llm-layer",
+    "test": "npm run verify-adapter && npm run verify-matcher && npm run verify-synthetic && npm run verify-llm-layer && npm run verify-audit-db",
     "verify-all": "npm run test",
     "capture-fixture": "node scripts/captureFixture.js",
     "verify-adapter": "node scripts/verifyAdapter.js",
@@ -13,7 +13,9 @@
     "generate-synthetic": "node scripts/generateSyntheticData.js",
     "verify-synthetic": "node scripts/verifySyntheticData.js",
     "verify-llm-layer": "node scripts/verifyLlmLayer.js",
-    "run-exception-layer": "node scripts/runExceptionLayer.js"
+    "verify-audit-db": "node scripts/verifyAuditDb.js",
+    "run-exception-layer": "node scripts/runExceptionLayer.js",
+    "run-pipeline": "node scripts/runFullPipeline.js"
   },
   "dependencies": {
     "better-sqlite3": "12.2.0",

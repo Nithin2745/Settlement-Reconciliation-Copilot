@@ -21,8 +21,9 @@
 //   E. the REAL llmClient.callLlmWithFallback, called with global.fetch
 //      mocked — proves the actual Groq->OpenRouter fallback code executes
 //      (not just that the orchestrator would call it), that transient
-//      failures retry and deterministic 4xx do not, and that the circuit
-//      breaker stops re-calling a hard-down primary
+//      failures retry and deterministic 4xx do not, that the circuit
+//      breaker stops re-calling a hard-down primary but un-trips for a merely
+//      throttled one, and that a provider's own `retry-after` is honoured
 //   F. the evaluation layer scores both layers against ground truth, and the
 //      two numbers the whole deterministic-first argument rests on — silent
 //      misses and silent wrong claims — are zero
@@ -970,6 +971,155 @@ async function main() {
     check(
       'breaker: a later success clears the failure count (no permanent sidelining)',
       failuresAfterBlip === 1 && breaker.consecutiveFailures === 0 && breaker.open === false
+    );
+  }
+
+  // E8 — the breaker un-trips. Regression guard for a real defect the first
+  // 120-record live run exposed: five transient Groq 429s (each saying "try
+  // again in ~2s") latched the breaker for the rest of the batch, pushing every
+  // remaining record onto OpenRouter's 20-req/min free tier, which then failed 4
+  // records outright. A rate limit is not an outage. `cooldownMs: 0` keeps the
+  // old latch-for-the-batch behaviour available, so both are pinned here.
+  {
+    const breaker = llmClient.createBreaker(THRESHOLD, 15000);
+    for (let i = 0; i < THRESHOLD; i += 1) breaker.recordFailure();
+    check('cooldown: breaker is open after the threshold', breaker.open === true);
+    check('cooldown: the primary is skipped while the cooldown is running', breaker.shouldSkipPrimary() === true);
+
+    // Rewind the clock rather than sleeping — a 15s sleep in `npm test` would be
+    // paid on every run forever to prove one boolean.
+    breaker.openedAt = Date.now() - 15001;
+    check(
+      'cooldown: once elapsed the primary is probed again, though the breaker still reads open',
+      breaker.shouldSkipPrimary() === false && breaker.open === true
+    );
+
+    // A failed probe must restart the cooldown, not leave the primary probeable
+    // on every subsequent record.
+    breaker.recordFailure();
+    check('cooldown: a failed probe restarts the cooldown', breaker.shouldSkipPrimary() === true);
+
+    const latched = llmClient.createBreaker(THRESHOLD, 0);
+    for (let i = 0; i < THRESHOLD; i += 1) latched.recordFailure();
+    latched.openedAt = Date.now() - 60000;
+    check('cooldown: cooldownMs=0 still latches open for the whole batch', latched.shouldSkipPrimary() === true);
+  }
+
+  // E9 — end to end through the real client: a primary that is rate-limited and
+  // then recovers gets picked back up mid-batch, and the recovered records come
+  // from the primary rather than from the fallback.
+  {
+    const breaker = llmClient.createBreaker(THRESHOLD, 15000);
+    let primaryHealthy = false;
+    const providers = [];
+    await withMockedFetch(
+      async (url) => {
+        if (url === config.llm.primary.apiUrl && !primaryHealthy) {
+          return fakeResponse({ ok: false, status: 429, statusText: 'Too Many Requests' });
+        }
+        return fakeResponse({ ok: true, content: goodContent });
+      },
+      async () => {
+        for (let i = 0; i < THRESHOLD; i += 1) {
+          const r = await llmClient.callLlmWithFallback({ systemPrompt: 'sys', userPrompt: 'u', breaker });
+          providers.push(r.provider);
+        }
+        // The throttling window passes and the bucket refills.
+        primaryHealthy = true;
+        breaker.openedAt = Date.now() - 15001;
+        const r = await llmClient.callLlmWithFallback({ systemPrompt: 'sys', userPrompt: 'u', breaker });
+        providers.push(r.provider);
+      }
+    );
+    check(
+      'recovery: throttled records fell back, then the primary was used again once it recovered',
+      providers.slice(0, THRESHOLD).every((p) => p === 'openrouter') &&
+        providers[providers.length - 1] === 'groq',
+      providers.join(',')
+    );
+    check('recovery: a successful probe closes the breaker', breaker.open === false);
+  }
+
+  // E10 — `retry-after` is honoured. The old blind 250ms backoff retried inside
+  // the exact window the provider had just told us to sit out, so the retry was
+  // guaranteed to fail and burned a call to learn nothing. Both providers report
+  // it differently, and neither is a header-only case: OpenRouter sets the
+  // header, Groq puts it in the JSON body.
+  {
+    const p = llmClient.parseRetryAfterMs;
+    check('retry-after: numeric header is read as seconds', p('2', '') === 2000);
+    check('retry-after: fractional header works', p('1.5', '') === 1500);
+    check(
+      "retry-after: Groq's message body is parsed when there is no header",
+      p(null, '{"error":{"message":"Rate limit reached ... Please try again in 1.785s. Need more"}}') === 1785
+    );
+    check('retry-after: millisecond form in the body', p(null, 'Please try again in 810ms.') === 810);
+    check('retry-after: absent from both is null, not 0', p(null, 'some other error') === null);
+    check('retry-after: an HTTP-date header resolves to a future offset', p(new Date(Date.now() + 3000).toUTCString(), '') > 1000);
+
+    // And it reaches the sleep: a 429 asking for 400ms must delay longer than the
+    // 250ms first-attempt backoff would have.
+    const waited = await withMockedFetch(
+      async (url) => {
+        if (url === config.llm.primary.apiUrl) {
+          return {
+            ok: false,
+            status: 429,
+            statusText: 'Too Many Requests',
+            headers: { get: (h) => (h.toLowerCase() === 'retry-after' ? '0.4' : null) },
+            text: async () => 'rate limited',
+            json: async () => ({}),
+          };
+        }
+        return fakeResponse({ ok: true, content: goodContent });
+      },
+      async () => {
+        const startedAt = Date.now();
+        await llmClient.callLlmWithFallback({ systemPrompt: 'sys', userPrompt: 'u' });
+        return Date.now() - startedAt;
+      }
+    );
+    check(
+      "retry-after: the provider's stated wait is actually slept, not the 250ms default",
+      waited >= 400,
+      `${waited}ms`
+    );
+
+    // A 12-hour retry-after must not stall the batch: past the ceiling, failing
+    // over to the other provider is faster than waiting. The ceiling is lowered
+    // for the duration so the assert costs milliseconds instead of seconds —
+    // what is under test is that the cap applies, not its configured value.
+    const realCeiling = config.llm.maxRetryAfterWaitMs;
+    config.llm.maxRetryAfterWaitMs = 50;
+    let capped;
+    try {
+      capped = await withMockedFetch(
+        async (url) => {
+          if (url === config.llm.primary.apiUrl) {
+            return {
+              ok: false,
+              status: 429,
+              statusText: 'Too Many Requests',
+              headers: { get: () => '43200' },
+              text: async () => 'rate limited',
+              json: async () => ({}),
+            };
+          }
+          return fakeResponse({ ok: true, content: goodContent });
+        },
+        async () => {
+          const startedAt = Date.now();
+          const r = await llmClient.callLlmWithFallback({ systemPrompt: 'sys', userPrompt: 'u' });
+          return { ms: Date.now() - startedAt, provider: r.provider };
+        }
+      );
+    } finally {
+      config.llm.maxRetryAfterWaitMs = realCeiling;
+    }
+    check(
+      'retry-after: an absurd wait is capped and we fail over instead of stalling',
+      capped.ms < 2000 && capped.provider === 'openrouter',
+      `${capped.ms}ms via ${capped.provider}`
     );
   }
 

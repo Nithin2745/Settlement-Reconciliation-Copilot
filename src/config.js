@@ -92,6 +92,19 @@ const config = {
     // Groq costs one doomed call per record (50 wasted round-trips on a 50-record
     // batch) before every single fallback call.
     primaryFailureThreshold: numberFromEnv('LLM_PRIMARY_FAILURE_THRESHOLD', 3, { min: 1 }),
+    // ...but it un-trips. An open breaker is re-probed once this long has passed,
+    // because the failure it most often sees is a rate limit, not an outage. On
+    // the first 120-record live run, five transient Groq 429s sidelined the
+    // primary for the rest of the batch and pushed everything onto OpenRouter's
+    // 20-requests/minute free tier, which then failed 4 records outright. 15s is
+    // longer than the 1-8s Groq asks for and long enough for a per-minute token
+    // bucket to refill meaningfully, while still giving a long batch several
+    // chances to pick the primary back up. Set 0 to latch open for the batch.
+    primaryCooldownMs: numberFromEnv('LLM_PRIMARY_COOLDOWN_MS', 15000, { min: 0 }),
+    // Ceiling on honouring a provider's own `retry-after`. Past this, failing over
+    // to the other provider is strictly faster than waiting — which is the entire
+    // reason there are two of them.
+    maxRetryAfterWaitMs: numberFromEnv('LLM_MAX_RETRY_AFTER_WAIT_MS', 5000, { min: 0 }),
   },
 };
 

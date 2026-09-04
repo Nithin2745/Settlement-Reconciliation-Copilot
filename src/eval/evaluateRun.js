@@ -393,6 +393,7 @@ module.exports = {
   evaluateDeterministic,
   evaluateAi,
   judgeDecision,
+  trueIdsFor,
   formatEvaluation,
   rate,
 };

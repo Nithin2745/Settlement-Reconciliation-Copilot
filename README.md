@@ -13,14 +13,15 @@ earned.** An exact-reference hit whose amount disagrees is a flagged match, not 
 
 ---
 
-## Status — Days 1–3 complete
+## Status — Days 1–4
 
 | Day | Scope | State |
 |---|---|---|
 | **Day 1** | Ingestion, normalization, waterfall validation, deterministic 3-way match engine | Complete |
 | **Day 2** | Synthetic bank statement + ledger generators, ground-truth answer key, batch stress test | Complete |
 | **Day 3** | LLM exception layer (Groq primary, OpenRouter fallback), constrained JSON, acceptance gate, evaluation metrics | Complete |
-| Day 4 | Dashboard, SQLite audit trail, `DECISIONS.md`, scope freeze | Not started |
+| **Day 4** | SQLite audit trail + live 120-record run, [DECISIONS.md](DECISIONS.md) | Complete |
+| Day 4 | Dashboard over the audit trail, scope freeze | In progress |
 
 The live Razorpay path is verified against real test-mode credentials: `npm run capture-fixture`
 authenticates, calls `settlements.reports({ year, month, day })`, paginates and writes
@@ -46,29 +47,40 @@ at 0.
 
 ### Measured end to end with the real LLM layer
 
-Two live runs, `npm run run-exception-layer <size> <seed>`. Every AI number below is scored against
-`ground-truth.internal.json`, which neither the matcher nor the model ever reads.
+Three live runs against the real providers. Every AI number below is scored against
+`ground-truth.internal.json`, which neither the matcher nor the model ever reads. The 120-record run
+is the headline one — `npm run run-pipeline 120 42`, which also writes the full audit trail; the two
+smaller runs used `npm run run-exception-layer <size> <seed>`.
 
-| Metric | 30 records, seed 42 | 60 records, seed 7 |
-|---|---|---|
-| Deterministic claim precision | 100% (44/44) | 100% (88/88) |
-| Silent misses / silent wrong claims | 0 / 0 | 0 / 0 |
-| Escalation recall | 100% (11/11) | 100% (22/22) |
-| LLM calls made / avoided | 11 / 2 | 22 / 4 |
-| **AI match precision** | **100% (8 named)** | **100% (15 named)** |
-| AI false positives | 0 | 0 |
-| Decision accuracy over accepted | 100% | 93.8% |
-| Rejected by the acceptance gate | 0 | 0 |
-| LLM errors | 0 | 0 |
-| **End-to-end coverage** | **83.3%** | **81.7%** |
+| Metric | **120 records, seed 42** | 60 records, seed 7 | 30 records, seed 42 |
+|---|---|---|---|
+| Deterministic claim precision | **100% (182/182)** | 100% (88/88) | 100% (44/44) |
+| Silent misses / silent wrong claims | **0 / 0** | 0 / 0 | 0 / 0 |
+| Escalation recall | **100% (39/39)** | 100% (22/22) | 100% (11/11) |
+| LLM calls made / avoided | 39 / 8 | 22 / 4 | 11 / 2 |
+| **AI match precision** | **100% (25 named)** | 100% (15 named) | 100% (8 named) |
+| AI false positives | **0** | 0 | 0 |
+| Decision accuracy over accepted | 92.6% | 93.8% | 100% |
+| Rejected by the acceptance gate | 4 | 0 | 0 |
+| LLM errors | **0** | 0 | 0 |
+| **End-to-end coverage** | **81.7%** | 81.7% | 83.3% |
 
-The 93.8% on the second run is one `NO_MATCH_FOUND` where a true counterpart *was* on the shortlist —
-a missed opportunity, counted as such rather than quietly scored as a correct decline. On the first
-run the confidence gate blocked one wrong answer at a cost of zero right ones.
+The number that matters most is the one that stays at 100% in every column: **the AI never named a
+counterpart that wasn't the right one.** Where it fails, it fails conservatively — the two errors
+behind 92.6% are one `REJECT_MATCH` on a pair that was genuinely a match and one `NO_MATCH_FOUND`
+where a true counterpart *was* on the shortlist. Both are missed opportunities that leave work on a
+human's desk. Neither puts a wrong match into the books, which is the failure direction this design
+is built to prefer.
 
-Provider mix varies run to run (`{groq: 8, openrouter: 3}` and `{groq: 4, openrouter: 18}`) because
-the free Groq tier rate-limits under load. Both runs completed with zero errors, which is the
-fallback doing exactly what ADR-003 asks of it — unprompted, on real traffic.
+All 4 acceptance-gate rejections on the 120-record run were the same thing:
+`EVIDENCE_NOT_IN_PAYLOAD:BULK_SETTLEMENT_ARITHMETIC_OK` — the model claiming a bulk-settlement
+arithmetic proof the payload didn't support. That is the gate earning its place, and it is also the
+evidence behind open decision 2 below.
+
+Provider mix varies run to run because the free Groq tier rate-limits under load; the 120-record run
+honoured 28 separate `retry-after` waits from Groq and still finished with zero LLM errors. That is
+the fallback and the retry policy doing exactly what ADR-003 asks of them — unprompted, on real
+traffic. See the build log: the first 120-record run is what exposed the rate-limit handling bug.
 
 ---
 
@@ -270,9 +282,59 @@ of burning two doomed round-trips. An HTTP 200 carrying empty `message.content` 
 failure, not an answer, because that is exactly what a token-budget truncation looks like from the
 outside.
 
-The circuit breaker is batch-scoped: after 3 consecutive primary failures the primary is skipped for
-the rest of the run, and a later success clears the count. Two runs in one process never inherit each
-other's failure state.
+A retryable failure waits as long as the provider asked it to. Both providers say so, differently —
+OpenRouter sets a `retry-after` header, Groq puts `"Please try again in 1.785s"` in the JSON body —
+and both are parsed, capped at 5s so that an absurd wait fails over rather than stalling the batch.
+A blind fixed backoff retries *inside* the window the provider just asked it to sit out, which is a
+guaranteed second failure.
+
+The circuit breaker is batch-scoped: after 3 consecutive primary failures the primary is skipped, and
+a later success clears the count. Two runs in one process never inherit each other's failure state.
+It trips but does not latch — an open breaker is re-probed after 15s, because the failure that
+actually happens in a long batch is a rate limit rather than an outage, and the two want opposite
+handling. A dead provider re-trips on the probe and costs one wasted call per cooldown window instead
+of one per record; a throttled one gets picked back up as soon as its token bucket refills. Both
+halves of that are in the build log: latching is what broke the first 120-record run.
+
+### Audit trail
+
+Every run and every record lands in SQLite, so "why was this record cleared?" has an answer that
+outlives the process.
+
+| File | Role |
+|---|---|
+| [src/db/auditDb.js](src/db/auditDb.js) | Schema, writes, per-run progress tallies, CSV/JSON export. Zero business logic — write-behind only |
+| [scripts/runFullPipeline.js](scripts/runFullPipeline.js) | The whole pipeline with the trail wired in: match → escalate → resolve → record |
+
+Two tables. `runs` carries one row per invocation — mode, size, seed, status, the evaluation summary
+as JSON, and an error if it died. `audit_log` carries one row per record, 24 columns, keyed by
+`run_id` so runs accumulate side by side rather than overwriting each other.
+
+Every record gets exactly one `resolution_path`, and they partition the batch:
+
+| Path | Meaning |
+|---|---|
+| `RULE_ONLY` | The deterministic engine settled it. No call made |
+| `LLM_SKIPPED` | Escalated, but there was nothing to show the model — no call made |
+| `LLM_ACCEPTED` | The model proposed and the gate accepted |
+| `LLM_FLAGGED` | Structurally valid but under the confidence threshold |
+| `LLM_REJECTED` | The gate refused it |
+| `LLM_ERROR` | Both providers failed for this record |
+
+Three design points worth naming:
+
+- **The writes are live, not a dump at the end.** `resolveExceptions` takes an `onResolution` hook and
+  fires it the instant each record resolves. The DB module knows nothing about the LLM layer and the
+  LLM layer knows nothing about SQLite. WAL mode means a reader can watch a run while it is still
+  being written, which is what makes a progress view real rather than an animation.
+- **An empty array is stored as `[]`, not `null`.** "Nothing was recorded" and "something was
+  recorded, and it was empty" are different claims, and an audit trail that collapses them is lying by
+  omission.
+- **The ground-truth columns are nullable and demo-only.** `eval_case_type` / `eval_verdict` are
+  populated from the synthetic answer key. A real run leaves them null, and `getRunProgress()` returns
+  `evalVerdicts: null` rather than `{}` — so an unscored run is distinguishable from a scored run with
+  nothing right yet. Only *accepted* decisions are scored: crediting the model for an answer the gate
+  threw away would flatter it.
 
 ---
 
@@ -292,7 +354,7 @@ Fixture mode is the default and needs no keys at all.
 npm test
 ```
 
-That runs all four verification suites in order. Individually:
+That runs all five verification suites in order, with no network access. Individually:
 
 | Command | Target | What it proves |
 |---|---|---|
@@ -300,8 +362,10 @@ That runs all four verification suites in order. Individually:
 | `npm run verify-matcher` | [scripts/verifyMatcher.js](scripts/verifyMatcher.js) | All four match outcomes reproduced on a hand-written fixture where every expectation is asserted by name |
 | `npm run generate-synthetic` | [scripts/generateSyntheticData.js](scripts/generateSyntheticData.js) | Writes a reproducible dataset to `fixtures/synthetic/` |
 | `npm run verify-synthetic` | [scripts/verifySyntheticData.js](scripts/verifySyntheticData.js) | 47 structural + routing invariants against the 120-record batch and its ground truth |
-| `npm run verify-llm-layer` | [scripts/verifyLlmLayer.js](scripts/verifyLlmLayer.js) | The whole Day 3 layer with **no network access**: payload shapes, the acceptance gate, orchestration, failover/retry/breaker behaviour against a mocked `fetch`, and the evaluation layer against ground truth |
-| `npm run run-exception-layer` | [scripts/runExceptionLayer.js](scripts/runExceptionLayer.js) | The real thing. Live Groq/OpenRouter calls, then the same evaluation block. **Not** part of `npm test` |
+| `npm run verify-llm-layer` | [scripts/verifyLlmLayer.js](scripts/verifyLlmLayer.js) | The whole Day 3 layer with **no network access**: payload shapes, the acceptance gate, orchestration, failover/retry/breaker/`retry-after` behaviour against a mocked `fetch`, and the evaluation layer against ground truth |
+| `npm run verify-audit-db` | [scripts/verifyAuditDb.js](scripts/verifyAuditDb.js) | The audit trail against a throwaway SQLite file: schema, run lifecycle, field round-trips, per-run isolation, CSV escaping, and one end-to-end pass through the **real** matcher and orchestrator proving the trail accounts for every record exactly once |
+| `npm run run-exception-layer` | [scripts/runExceptionLayer.js](scripts/runExceptionLayer.js) | The real thing. Live Groq/OpenRouter calls, then the evaluation block. **Not** part of `npm test` |
+| `npm run run-pipeline` | [scripts/runFullPipeline.js](scripts/runFullPipeline.js) | The same, plus the audit trail written to `data/audit.db` as it goes. **Not** part of `npm test` |
 
 `verify-llm-layer` mocks `fetch`, so a missing key or a flaky provider can never break the build.
 That trade has a cost worth naming: its fake caller returns hand-written valid JSON, so no assert in
@@ -318,6 +382,13 @@ The real run takes them too:
 
 ```bash
 npm run run-exception-layer -- 30 42
+```
+
+The full pipeline is the same call plus the audit trail. Runs accumulate in `data/audit.db` — the file
+is gitignored, so nothing about a run is committed:
+
+```bash
+npm run run-pipeline -- 120 42
 ```
 
 ---
@@ -374,13 +445,14 @@ one. Changing it would also mean splitting ground truth's `needsAiReview` into "
 "requires inference" and updating both verification suites.
 
 **3. The "86% of LLM calls avoided" pitch line is not achievable on this dataset, and the honest
-number is better anyway.** Measured: 60.8% of records resolve deterministically with zero silent
-misses, and of the records that *are* escalated, 15% need no call because there is nothing to offer
-the model (2 of 13 and 4 of 26 on the two live runs). End-to-end coverage — rules plus AI, counting
-only correctly named counterparts — lands at 81.7–83.3% with 100% AI match precision. The corpus is
-deliberately exception-heavy (39% of it is a genuine exception by construction), which is why the
-deterministic share is lower than a production mix would give. The demo should quote the measured
-numbers.
+number is better anyway.** Measured on the 120-record batch (seed 42), which is the batch every figure
+in the tables above describes unless it says otherwise: 60.8% of records resolve deterministically
+with zero silent misses, and of the 47 that *are* escalated, 17% need no call at all because there is
+nothing to offer the model (8 of 47; the smaller runs gave 2 of 13 and 4 of 26). End-to-end coverage —
+rules plus AI, counting only correctly named counterparts — lands at 81.7–83.3% with 100% AI match
+precision on every run. The corpus is deliberately exception-heavy (39% of it is a genuine exception by
+construction), which is why the deterministic share is lower than a production mix would give. The
+demo should quote the measured numbers.
 
 ---
 
@@ -462,6 +534,28 @@ predicate, so a model echoing a method name on a record with no shared reference
 pinned by an assert that tries exactly that. It is also restricted to strings *we* put in the
 payload, so the model is repeating our own field value rather than inventing a code.
 
+**The circuit breaker treated "slow down" as "you are broken", and it only showed at 120 records.**
+The first live run at full scale lost 4 records to `LLM_ERROR` with nothing actually wrong at either
+provider. Two mistakes compounded. Groq's 429 body says exactly how long to wait
+(`"Please try again in 1.785s"`) and the retry policy ignored it, sleeping a blind 250ms — so the
+retry landed inside the window Groq had just asked it to sit out and was guaranteed to fail. Those
+manufactured failures then hit a breaker that latched: three of them retired the primary for the
+remaining ~25 records, so every one of them went to OpenRouter's free tier, which is capped at 20
+requests/minute, and 4 records fell off the end when *that* limit hit. A rate limit and an outage look
+identical to a failure counter and need opposite handling — one recovers in two seconds, the other
+does not recover at all. Fixed by parsing `retry-after` from both providers (header and message body,
+capped at 5s so an absurd wait fails over instead of stalling) and giving the breaker a 15s cooldown
+after which one request probes the primary again. Re-run on the same seed: 28 honoured waits, the
+breaker never tripped, `llmErrors` 4 → 0, and two more escalations cleared. Both runs are still in
+`data/audit.db` as runs 1 and 2, which is the argument for keying the trail by `run_id` rather than
+overwriting: the regression and its fix are side by side in the same table.
+
+The two extra records the fix recovered are also why decision accuracy reads 92.6% rather than 100% —
+they were the two hardest exceptions in the batch, and the model got both wrong in the conservative
+direction (one `REJECT_MATCH` on a real pair, one `NO_MATCH_FOUND` with the answer on the shortlist).
+Fixing an infrastructure bug lowered a quality metric by giving the model two more chances to be
+wrong. The alternative was a nicer-looking percentage over fewer answered records.
+
 ---
 
 ## Known limitations
@@ -491,10 +585,16 @@ name.
 
 ## Next steps
 
-**Day 4** — Batch dashboard, SQLite audit trail (`better-sqlite3`, already pinned), `DECISIONS.md`
-with ADR 001–004, and scope freeze. The per-record `resolutions` array is already shaped for it:
-every entry carries `offeredCandidateIds`, the model's `rawReasonCodes`, the sanitized `reasonCodes`,
-`validationWarnings` and `validationReason`, so the audit trail can show what the model was shown,
-what it said, and what the gate did about it.
+**Day 4, done** — The SQLite audit trail is built and wired into the live pipeline
+([src/db/auditDb.js](src/db/auditDb.js), [scripts/runFullPipeline.js](scripts/runFullPipeline.js)),
+covered by a fifth verification suite, and exercised by a real 120-record run. The trail records what
+the model was shown (`offeredCandidateIds`), what it said (`llm_raw_reason_codes`), what the gate did
+about it (`llm_reason_codes`, `validation_reason`, `validation_warnings`) and which of the six
+`resolution_path` values every record ended on. The four ADRs are written up in
+[DECISIONS.md](DECISIONS.md).
+
+**Day 4, remaining** — A read-only dashboard over the trail; `getRunProgress()`, `getAuditRows()`,
+`exportAuditCsv()` and `exportAuditJson()` are built and tested but nothing consumes them yet. Then
+scope freeze.
 
 **Day 5** — Demo recording and submission buffer. No coding.
