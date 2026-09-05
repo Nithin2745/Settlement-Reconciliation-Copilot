@@ -515,9 +515,14 @@ a reviewer to notice.
    captures, but the test account has never settled a payment, so the capture is a valid empty
    collection. Every record-shape claim in this repo is measured on the synthetic corpus. This is
    open decision 1, and no amount of further code closes it.
-2. **Decision accuracy over accepted decisions is 92.6%, not 100%.** Two of the hardest exceptions in
-   the 120-record batch were answered wrong, both conservatively — one `REJECT_MATCH` on a real pair,
-   one `NO_MATCH_FOUND` with the counterpart on the shortlist. Both leave work on a human's desk.
-   Neither puts a wrong match in the books, which is the failure direction the whole design prefers,
-   and AI match precision stays at 100% across every run.
+2. **Decision accuracy over accepted decisions is not 100%, and it is not a fixed number either.** On
+   the reference run it is 96.4% — one wrong answer in 28 accepted decisions, a `REJECT_MATCH` on
+   `pay_SYN0000209` whose proposed pair was real. On run 2 of the same 120-record batch under the same
+   seed it was 92.6% over two wrong answers. That spread is the honest property of the layer: the
+   deterministic half is reproducible to the record, and the AI half is not, because provider responses
+   vary. Quoting one AI percentage as though it were a constant is the claim this freeze declines to
+   make, and it is why both runs stay in `data/audit.db` instead of the better one being kept alone.
+   What is stable across every run is the direction of the failure and the invariants around it: every
+   error so far has been a refusal to match rather than a wrong match, AI match precision is 100% in
+   every run, false positives 0, silent misses 0.
 

@@ -49,8 +49,10 @@ at 0.
 
 Three live runs against the real providers. Every AI number below is scored against
 `ground-truth.internal.json`, which neither the matcher nor the model ever reads. The 120-record run
-is the headline one — `npm run run-pipeline 120 42`, which also writes the full audit trail; the two
-smaller runs used `npm run run-exception-layer <size> <seed>`.
+is the headline one — `npm run run-pipeline 120 42`, which also writes the full audit trail; it is
+**run 5** in `data/audit.db` and the run the dashboard opens on, so every figure in that column can be
+read back off the screen. The two smaller runs used `npm run run-exception-layer <size> <seed>`, which
+scores without persisting.
 
 | Metric | **120 records, seed 42** | 60 records, seed 7 | 30 records, seed 42 |
 |---|---|---|---|
@@ -58,19 +60,27 @@ smaller runs used `npm run run-exception-layer <size> <seed>`.
 | Silent misses / silent wrong claims | **0 / 0** | 0 / 0 | 0 / 0 |
 | Escalation recall | **100% (39/39)** | 100% (22/22) | 100% (11/11) |
 | LLM calls made / avoided | 39 / 8 | 22 / 4 | 11 / 2 |
-| **AI match precision** | **100% (25 named)** | 100% (15 named) | 100% (8 named) |
+| **AI match precision** | **100% (27 named)** | 100% (15 named) | 100% (8 named) |
 | AI false positives | **0** | 0 | 0 |
-| Decision accuracy over accepted | 92.6% | 93.8% | 100% |
+| Decision accuracy over accepted | 96.4% (27/28) | 93.8% | 100% |
 | Rejected by the acceptance gate | 4 | 0 | 0 |
 | LLM errors | **0** | 0 | 0 |
-| **End-to-end coverage** | **81.7%** | 81.7% | 83.3% |
+| **End-to-end coverage** | **83.3%** | 81.7% | 83.3% |
 
 The number that matters most is the one that stays at 100% in every column: **the AI never named a
-counterpart that wasn't the right one.** Where it fails, it fails conservatively — the two errors
-behind 92.6% are one `REJECT_MATCH` on a pair that was genuinely a match and one `NO_MATCH_FOUND`
-where a true counterpart *was* on the shortlist. Both are missed opportunities that leave work on a
-human's desk. Neither puts a wrong match into the books, which is the failure direction this design
-is built to prefer.
+counterpart that wasn't the right one.** Where it fails, it fails conservatively — the single error
+behind 96.4% is a `REJECT_MATCH` on `pay_SYN0000209`, a bulk settlement whose proposed pair was
+genuinely a match. That leaves work on a human's desk; it does not put a wrong match into the books,
+which is the failure direction this design is built to prefer.
+
+The AI rows move between runs and the deterministic rows do not, which is worth stating rather than
+leaving for a reader to find. The same seed gives the same corpus and the same 182 claims every time,
+because nothing in that layer is stochastic; provider responses vary, so the AI column lands in a band
+instead of on a number. Run 2 in `data/audit.db` is this same 120-record batch measured earlier the
+same day — 25 named, 92.6% accuracy, 81.7% coverage, two conservative errors instead of one — and it is
+kept in the trail rather than overwritten in favour of the better run. What holds in every run is the
+shape rather than the percentage: **AI match precision 100%, false positives 0, silent misses 0**, and
+every error on the side of leaving work for a human.
 
 All 4 acceptance-gate rejections on the 120-record run were the same thing:
 `EVIDENCE_NOT_IN_PAYLOAD:BULK_SETTLEMENT_ARITHMETIC_OK` — the model claiming a bulk-settlement
@@ -411,10 +421,11 @@ cues instead of 3 on the reference run, which would make the cue worthless. As i
 of 120 rows, and all three are bulk settlements where one bank credit covers three records.
 
 Two numbers deliberately appear in only one place each. The three partition tiles are derived from
-`byResolutionPath` alone so they sum to the record total exactly; `pipeline.leftForHuman` (22) and
-`endToEndCoverage` (81.7%) differ from the path-derived figures (20 and 83.3%) because two accepted
-decisions were `REJECT_MATCH`/`NO_MATCH_FOUND` rather than matches, so both live in the labelled
-scorecard under their own names instead of contradicting a tile.
+`byResolutionPath` alone so they sum to the record total exactly; `pipeline.leftForHuman` (20) and
+`endToEndCoverage` (83.3%) differ from the path-derived figures (19 and 84.2%) because one accepted
+decision was a `REJECT_MATCH` rather than a match — the gate accepted it, so it is an accepted
+decision, but it resolved no record — so both live in the labelled scorecard under their own names
+instead of contradicting a tile.
 
 ---
 
@@ -646,11 +657,11 @@ breaker never tripped, `llmErrors` 4 → 0, and two more escalations cleared. Bo
 `data/audit.db` as runs 1 and 2, which is the argument for keying the trail by `run_id` rather than
 overwriting: the regression and its fix are side by side in the same table.
 
-The two extra records the fix recovered are also why decision accuracy reads 92.6% rather than 100% —
-they were the two hardest exceptions in the batch, and the model got both wrong in the conservative
-direction (one `REJECT_MATCH` on a real pair, one `NO_MATCH_FOUND` with the answer on the shortlist).
-Fixing an infrastructure bug lowered a quality metric by giving the model two more chances to be
-wrong. The alternative was a nicer-looking percentage over fewer answered records.
+The two extra records the fix recovered are also why decision accuracy on run 2 reads 92.6% rather
+than 100% — they were the two hardest exceptions in the batch, and the model got both wrong in the
+conservative direction (one `REJECT_MATCH` on a real pair, one `NO_MATCH_FOUND` with the answer on the
+shortlist). Fixing an infrastructure bug lowered a quality metric by giving the model two more chances
+to be wrong. The alternative was a nicer-looking percentage over fewer answered records.
 
 **A wrong `SETTLEMENT_MONTH` would have reconciled the wrong day and looked healthy doing it.** Found
 in the final pre-submission read, not by a failing test — because there was no test. The three
