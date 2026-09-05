@@ -40,8 +40,22 @@ CREATE TABLE IF NOT EXISTS audit_log (
   run_id               INTEGER NOT NULL REFERENCES runs(id),
   entity_id            TEXT NOT NULL,
   entity_type          TEXT,
+  settlement_utr       TEXT,
   status               TEXT NOT NULL,
   confidence_tier      TEXT,
+  -- The money, in paise, exactly as each of the three sources stated it. The
+  -- trail could already name a disagreement — AMOUNT_DISAGREES_BANK lands in
+  -- signals_json — but it could not say by how much, which is the first thing a
+  -- finance reviewer asks and the one number the dashboard could not show.
+  -- gross/fee/tax/net are the settlement's own waterfall; bank_amount and
+  -- ledger_amount are what the matched counterparties said, or null when there
+  -- was no match on that side.
+  gross_amount         INTEGER,
+  fee                  INTEGER,
+  tax                  INTEGER,
+  net_amount           INTEGER,
+  bank_amount          INTEGER,
+  ledger_amount        INTEGER,
   bank_match_id        TEXT,
   bank_match_method    TEXT,
   ledger_match_id      TEXT,
@@ -67,6 +81,44 @@ CREATE INDEX IF NOT EXISTS idx_audit_status ON audit_log(run_id, status);
 CREATE INDEX IF NOT EXISTS idx_audit_path ON audit_log(run_id, resolution_path);
 `;
 
+// `CREATE TABLE IF NOT EXISTS` is a no-op against a database that already has the
+// table, so adding a column to SCHEMA above does NOT reach an existing
+// data/audit.db: the column would exist in this file and not on disk, and the
+// first insert after the upgrade would fail on a name that isn't there. Additive
+// columns are therefore applied explicitly, guarded by what the file actually has.
+//
+// ADD COLUMN only — never rewrite, never drop. An audit trail that loses history
+// to a migration is not an audit trail. Rows written before an addition read back
+// null, which is the honest answer: that run genuinely did not record the field.
+// The dashboard already renders a null amount as an em dash, so an old run stays
+// readable instead of showing zeroes it never measured.
+const ADDED_COLUMNS = [
+  ['audit_log', 'settlement_utr', 'TEXT'],
+  ['audit_log', 'gross_amount', 'INTEGER'],
+  ['audit_log', 'fee', 'INTEGER'],
+  ['audit_log', 'tax', 'INTEGER'],
+  ['audit_log', 'net_amount', 'INTEGER'],
+  ['audit_log', 'bank_amount', 'INTEGER'],
+  ['audit_log', 'ledger_amount', 'INTEGER'],
+];
+
+// Table and column names are interpolated because PRAGMA and ALTER TABLE take
+// neither as a bound parameter. They come from the literal list above and never
+// from a request, an argument or the environment — the one place in this project
+// where a name reaches SQL as text, and it reaches it from a constant.
+function migrate(db) {
+  const columnsByTable = new Map();
+  for (const [table, column, type] of ADDED_COLUMNS) {
+    if (!columnsByTable.has(table)) {
+      columnsByTable.set(table, new Set(db.pragma(`table_info(${table})`).map((c) => c.name)));
+    }
+    const existing = columnsByTable.get(table);
+    if (existing.has(column)) continue;
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}`);
+    existing.add(column);
+  }
+}
+
 // Cached per resolved path rather than as one global handle: the verification
 // suite opens a throwaway db under os.tmpdir(), and a single-slot cache would
 // hand it back the real data/audit.db instead — silently writing test rows into
@@ -84,6 +136,7 @@ function getDb(dbPath = DEFAULT_DB_PATH) {
   // Without this, every poll would contend with the live writer.
   db.pragma('journal_mode = WAL');
   db.exec(SCHEMA);
+  migrate(db);
   _handles.set(resolved, db);
   return db;
 }
@@ -141,8 +194,18 @@ function rowParams(runId, row) {
     runId,
     entityId: row.entityId,
     entityType: row.entityType || null,
+    settlementUtr: row.settlementUtr || null,
     status: row.status,
     confidenceTier: row.confidenceTier || null,
+    // `?? null` rather than `|| null` throughout: a legitimately zero amount is a
+    // fact (a fully-waived fee, a zero-tax record), and `||` would file it in the
+    // trail as "not recorded". Same bug class as the config knobs.
+    grossAmount: row.grossAmount ?? null,
+    fee: row.fee ?? null,
+    tax: row.tax ?? null,
+    netAmount: row.netAmount ?? null,
+    bankAmount: row.bankAmount ?? null,
+    ledgerAmount: row.ledgerAmount ?? null,
     bankMatchId: row.bankMatchId || null,
     bankMatchMethod: row.bankMatchMethod || null,
     ledgerMatchId: row.ledgerMatchId || null,
@@ -169,14 +232,16 @@ function rowParams(runId, row) {
 
 const INSERT_SQL = `
   INSERT INTO audit_log (
-    run_id, entity_id, entity_type, status, confidence_tier,
+    run_id, entity_id, entity_type, settlement_utr, status, confidence_tier,
+    gross_amount, fee, tax, net_amount, bank_amount, ledger_amount,
     bank_match_id, bank_match_method, ledger_match_id, ledger_match_method,
     signals_json, unresolved_reason, resolution_path,
     llm_provider, llm_decision, llm_candidate_id, llm_confidence,
     llm_reason_codes, llm_raw_reason_codes, validation_reason, validation_warnings,
     eval_case_type, eval_verdict, created_at
   ) VALUES (
-    @runId, @entityId, @entityType, @status, @confidenceTier,
+    @runId, @entityId, @entityType, @settlementUtr, @status, @confidenceTier,
+    @grossAmount, @fee, @tax, @netAmount, @bankAmount, @ledgerAmount,
     @bankMatchId, @bankMatchMethod, @ledgerMatchId, @ledgerMatchMethod,
     @signalsJson, @unresolvedReason, @resolutionPath,
     @llmProvider, @llmDecision, @llmCandidateId, @llmConfidence,
@@ -303,5 +368,6 @@ module.exports = {
   exportAuditCsv,
   exportAuditJson,
   toCsv,
+  ADDED_COLUMNS,
   DEFAULT_DB_PATH,
 };

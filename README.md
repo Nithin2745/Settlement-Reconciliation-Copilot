@@ -307,7 +307,7 @@ outlives the process.
 | [scripts/runFullPipeline.js](scripts/runFullPipeline.js) | The whole pipeline with the trail wired in: match → escalate → resolve → record |
 
 Two tables. `runs` carries one row per invocation — mode, size, seed, status, the evaluation summary
-as JSON, and an error if it died. `audit_log` carries one row per record, 24 columns, keyed by
+as JSON, and an error if it died. `audit_log` carries one row per record, 31 columns, keyed by
 `run_id` so runs accumulate side by side rather than overwriting each other.
 
 Every record gets exactly one `resolution_path`, and they partition the batch:
@@ -321,7 +321,7 @@ Every record gets exactly one `resolution_path`, and they partition the batch:
 | `LLM_REJECTED` | The gate refused it |
 | `LLM_ERROR` | Both providers failed for this record |
 
-Three design points worth naming:
+Five design points worth naming:
 
 - **The writes are live, not a dump at the end.** `resolveExceptions` takes an `onResolution` hook and
   fires it the instant each record resolves. The DB module knows nothing about the LLM layer and the
@@ -330,6 +330,20 @@ Three design points worth naming:
 - **An empty array is stored as `[]`, not `null`.** "Nothing was recorded" and "something was
   recorded, and it was empty" are different claims, and an audit trail that collapses them is lying by
   omission.
+- **The money is stored, in integer paise, as each of the three sources stated it.** `gross_amount` /
+  `fee` / `tax` / `net_amount` are the settlement's own waterfall; `bank_amount` and `ledger_amount`
+  are what the matched counterparties said. The signals could always *name* a disagreement —
+  `AMOUNT_DISAGREES_BANK` lands in `signals_json` — but nothing in the trail could say *by how much*,
+  which is the first question a finance reviewer asks. A null counterparty amount means no match on
+  that side, which is a different fact from an amount of zero, so these bind with `?? null` and never
+  `|| null`: a fully-waived fee of 0 is a measurement, not a blank.
+- **New columns arrive by `ALTER TABLE ADD COLUMN`, never by rewriting the table.** `CREATE TABLE IF
+  NOT EXISTS` is a no-op against a database that already has the table, so adding a column to the
+  schema literal does not reach an existing `data/audit.db` — the column would exist in the code and
+  not on disk, and the first insert would fail on a name that isn't there. `migrate()` applies the
+  additive list, guarded by what the file actually has, and rows written before an addition read back
+  null. That is the honest answer: that run genuinely did not record the field, and the dashboard
+  renders it as an em dash rather than a zero nobody measured.
 - **The ground-truth columns are nullable and demo-only.** `eval_case_type` / `eval_verdict` are
   populated from the synthetic answer key. A real run leaves them null, and `getRunProgress()` returns
   `evalVerdicts: null` rather than `{}` — so an unscored run is distinguishable from a scored run with
@@ -383,10 +397,18 @@ What the page shows, in the order it shows it: the six headline tiles (records, 
 accepted, held for a human, silent misses, AI match precision), the stacked `resolution_path` bar with
 a plain-English gloss per path, the scorecards (match status, ground-truth verdicts, the ADR-001 and
 ADR-002 numbers, and why the gate rejected what it rejected), and the per-record table. Clicking a
-record opens the full chain for it: what the engine matched and how, the signals it raised, the path
-it took, what the model proposed, what the gate did about it — including any reason code the gate
-dropped, shown struck through next to the ones that survived — the ground-truth verdict, and the run
-and row it came from.
+record opens the full chain for it: what each source said the money was, what the engine matched and
+how, the signals it raised, the path it took, what the model proposed, what the gate did about it —
+including any reason code the gate dropped, shown struck through next to the ones that survived — the
+ground-truth verdict, and the run and row it came from.
+
+The amount column carries a disagreement cue under the net figure whenever a counterparty amount
+exists and differs, so scanning the column finds the money problems instead of reading 120 rows of
+confirmation. Each side is measured against the settlement field it is supposed to equal — bank
+credits against net, ledger entries against gross — mirroring `AMOUNT_FIELD_BY_SOURCE` in the matcher.
+Comparing both to net would print a red delta of exactly fee + tax on every clean record — 92 false
+cues instead of 3 on the reference run, which would make the cue worthless. As it stands it fires on 3
+of 120 rows, and all three are bulk settlements where one bank credit covers three records.
 
 Two numbers deliberately appear in only one place each. The three partition tiles are derived from
 `byResolutionPath` alone so they sum to the record total exactly; `pipeline.leftForHuman` (22) and
@@ -412,11 +434,11 @@ Fixture mode is the default and needs no keys at all.
 npm test
 ```
 
-That runs all six verification suites in order, with no network access. **336 assertions, exit code 0.**
-Four of the suites print one `OK` line per check and account for **318** of them — llm-layer 117,
-dashboard 93, audit-db 61, synthetic 47. The adapter and matcher suites assert through `node:assert`
+That runs all six verification suites in order, with no network access. **359 assertions, exit code 0.**
+Four of the suites print one `OK` line per check and account for **341** of them — llm-layer 117,
+dashboard 93, audit-db 84, synthetic 47. The adapter and matcher suites assert through `node:assert`
 (10 and 8 assertions), which throws on failure and prints nothing on success, so they contribute no
-`OK` lines to that 318. Individually:
+`OK` lines to that 341. Individually:
 
 | Command | Target | What it proves |
 |---|---|---|
@@ -425,7 +447,7 @@ dashboard 93, audit-db 61, synthetic 47. The adapter and matcher suites assert t
 | `npm run generate-synthetic` | [scripts/generateSyntheticData.js](scripts/generateSyntheticData.js) | Writes a reproducible dataset to `fixtures/synthetic/` for inspection. **Not** part of `npm test` — the suites and the runners build the same batch in memory from the same seed |
 | `npm run verify-synthetic` | [scripts/verifySyntheticData.js](scripts/verifySyntheticData.js) | 47 structural + routing invariants against the 120-record batch and its ground truth |
 | `npm run verify-llm-layer` | [scripts/verifyLlmLayer.js](scripts/verifyLlmLayer.js) | The whole Day 3 layer with **no network access**: payload shapes, the acceptance gate, orchestration, failover/retry/breaker/`retry-after` behaviour against a mocked `fetch`, and the evaluation layer against ground truth |
-| `npm run verify-audit-db` | [scripts/verifyAuditDb.js](scripts/verifyAuditDb.js) | The audit trail against a throwaway SQLite file: schema, run lifecycle, field round-trips, per-run isolation, CSV escaping, and one end-to-end pass through the **real** matcher and orchestrator proving the trail accounts for every record exactly once |
+| `npm run verify-audit-db` | [scripts/verifyAuditDb.js](scripts/verifyAuditDb.js) | The audit trail against a throwaway SQLite file: schema, run lifecycle, field round-trips, per-run isolation, CSV escaping, the additive migration replayed against a pre-money 24-column database, and one end-to-end pass through the **real** matcher and orchestrator proving the trail accounts for every record exactly once and that every stored amount agrees with the signal the matcher raised |
 | `npm run verify-dashboard` | [scripts/verifyDashboard.js](scripts/verifyDashboard.js) | The dashboard: every write verb refused before routing, traversal attempts 404 by allowlist, the read API's null-vs-`[]` fidelity, export headers, and one real loopback bind with three real requests over TCP |
 | `npm run dashboard` | [scripts/dashboard.js](scripts/dashboard.js) | Serves the trail read-only on `http://127.0.0.1:4000`. **Not** part of `npm test` |
 | `npm run run-exception-layer` | [scripts/runExceptionLayer.js](scripts/runExceptionLayer.js) | The real thing. Live Groq/OpenRouter calls, then the evaluation block. **Not** part of `npm test` |
@@ -712,7 +734,7 @@ about it (`llm_reason_codes`, `validation_reason`, `validation_warnings`) and wh
 The read-only dashboard over that trail is built too ([src/dashboard/](src/dashboard/),
 [scripts/dashboard.js](scripts/dashboard.js)) — `node:http`, zero new dependencies, one static page,
 GET and HEAD only — and covered by a sixth suite, [ADR-005](DECISIONS.md#adr-005--the-dashboard-is-read-only-by-construction-not-by-omission).
-`npm test` is 336 assertions across six suites, all passing with no network access. Both prior runs are
+`npm test` is 359 assertions across six suites, all passing with no network access. Both prior runs are
 visible in the same run selector, which is the payoff of keying the trail by `run_id`: the
 rate-limit regression and its fix sit side by side.
 

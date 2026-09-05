@@ -4,11 +4,12 @@
 // other verify script: it drives the real matcher and the real resolveExceptions
 // with an injected fake llmCaller, so it needs no Groq/OpenRouter access.
 //
-// Six things get checked, in order:
+// Seven things get checked, in order:
 //   A. schema + run lifecycle — a run stays 'running' with no finished_at until
 //      finishRun, and carries its summary as JSON afterwards
 //   B. one row round-trips: every structured field comes back out as it went in,
-//      and the demo-only eval_* columns stay null on an unscored run
+//      the money survives as integer paise, and the demo-only eval_* columns stay
+//      null on an unscored run
 //   C. bulk insert and getRunProgress tallies — what the dashboard polls
 //   D. the per-path handle cache. Two db paths must not share one connection, or
 //      a test run would silently write into the real data/audit.db
@@ -18,6 +19,11 @@
 //      fake caller -> live onResolution writes. The trail must account for every
 //      record exactly once, which is the assert that would actually catch a
 //      wiring mistake.
+//   G. the additive migration, against a db created with the pre-money schema.
+//      `CREATE TABLE IF NOT EXISTS` is a no-op on an existing table, so without
+//      migrate() the new columns would exist in auditDb.js and not on disk and
+//      the first insert would fail — a break that only shows up on an upgrade,
+//      never on a fresh clone, which is exactly the kind a fresh-db test misses.
 //
 // What a pass here does NOT prove: runFullPipeline.js's own field mapping, since
 // that script needs real API keys. `npm run run-pipeline` is what exercises it.
@@ -28,6 +34,7 @@ process.env.OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || 'test-openrou
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
+const Database = require('better-sqlite3');
 
 const { normalizeSettlementRecon } = require('../src/normalizeSettlement');
 const { matchThreeWay } = require('../src/matcher/matchEngine');
@@ -48,6 +55,7 @@ function check(label, condition, detail) {
 const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'recon-audit-'));
 const dbPath = path.join(tmpRoot, 'audit.db');
 const altDbPath = path.join(tmpRoot, 'other.db');
+const legacyDbPath = path.join(tmpRoot, 'legacy.db');
 
 async function main() {
   // ---------------------------------------------------------------------------
@@ -89,8 +97,18 @@ async function main() {
     {
       entityId: 'pay_TEST0001',
       entityType: 'payment',
+      settlementUtr: 'UTR8842910077',
       status: 'PARTIAL_BANK_ONLY',
       confidenceTier: 'LOW',
+      grossAmount: 250000,
+      // Zero on purpose. `|| null` would file a genuinely waived fee in the trail
+      // as "not recorded", which is the same bug class as the config knobs — so
+      // rowParams uses `?? null` and this asserts it.
+      fee: 0,
+      tax: 900,
+      netAmount: 249100,
+      bankAmount: 249100,
+      ledgerAmount: null,
       bankMatchId: 'bank_001',
       bankMatchMethod: 'EXACT_UTR',
       ledgerMatchId: null,
@@ -120,6 +138,18 @@ async function main() {
     row.bank_match_method === 'EXACT_UTR' && row.ledger_match_method === null
   );
   check('confidence stored as a real number', row.llm_confidence === 0.82, String(row.llm_confidence));
+  check('settlement UTR stored', row.settlement_utr === 'UTR8842910077', row.settlement_utr);
+  check(
+    'the waterfall round-trips as integer paise',
+    row.gross_amount === 250000 && row.tax === 900 && row.net_amount === 249100,
+    `${row.gross_amount}/${row.tax}/${row.net_amount}`
+  );
+  // The distinction the whole money change rests on: a fee of zero was measured,
+  // an absent ledger amount was not. Collapsing either into the other would let
+  // the dashboard render a number nobody recorded.
+  check('a zero amount is stored as 0, not null', row.fee === 0, String(row.fee));
+  check('an unmatched side stores null, not 0', row.ledger_amount === null, String(row.ledger_amount));
+  check('the matched bank amount is stored', row.bank_amount === 249100, String(row.bank_amount));
   check(
     'signals round-trip through JSON',
     JSON.parse(row.signals_json).join(',') === 'NO_LEDGER_CANDIDATE,AMOUNT_MISMATCH'
@@ -248,8 +278,30 @@ async function main() {
 
   const csv = auditDb.exportAuditCsv(csvRunId, dbPath);
   const header = csv.split('\n')[0];
+  const headerCols = header.split(',');
+  // Expected width is read from the table rather than hard-coded: toCsv derives
+  // its columns from Object.keys(row), so the assert that matters is "the export
+  // covers what the table has", and a literal here would only ever be bumped to
+  // match whatever the code now does — which is not a test.
+  const tableCols = auditDb
+    .getDb(dbPath)
+    .pragma('table_info(audit_log)')
+    .map((c) => c.name);
   check('csv starts with a header row', header.startsWith('id,run_id,entity_id'), header.slice(0, 40));
-  check('csv header covers every column', header.split(',').length === 24, String(header.split(',').length));
+  check(
+    'csv header covers every column',
+    headerCols.length === tableCols.length && tableCols.every((c) => headerCols.includes(c)),
+    `${headerCols.length} header vs ${tableCols.length} table columns`
+  );
+  // Named explicitly as well: a set comparison passes if the export and the table
+  // are wrong together, and these seven are the ones this change added.
+  check(
+    'csv header carries the money columns',
+    ['settlement_utr', 'gross_amount', 'fee', 'tax', 'net_amount', 'bank_amount', 'ledger_amount'].every(
+      (c) => headerCols.includes(c)
+    ),
+    header
+  );
   check('csv quotes a field containing a comma', csv.includes('"NEFT CR, '));
   check('csv doubles embedded quotes', csv.includes('""MEGA""'));
   check('csv of an unknown run is an empty string', auditDb.exportAuditCsv(99999, dbPath) === '');
@@ -277,22 +329,35 @@ async function main() {
     dbPath
   );
 
+  // Mirrors auditRowFromResult() in runFullPipeline.js: the deterministic half of
+  // a row, shared by the bulk path and the live escalated path, so an escalated
+  // record still carries whatever the engine did find and the amounts are
+  // exercised off a real batch rather than only the hand-written row in section B.
+  const bySettlementId = new Map(results.map((r) => [r.settlement.entityId, r]));
+  const deterministicHalf = (r) => ({
+    entityId: r.settlement.entityId,
+    entityType: r.settlement.type,
+    settlementUtr: r.settlement.settlementUtr,
+    status: r.status,
+    confidenceTier: r.confidenceTier,
+    grossAmount: r.settlement.grossAmount,
+    fee: r.settlement.fee,
+    tax: r.settlement.tax,
+    netAmount: r.settlement.netAmount,
+    bankAmount: r.bankMatch && r.bankMatch.record ? r.bankMatch.record.amount : null,
+    ledgerAmount: r.ledgerMatch && r.ledgerMatch.record ? r.ledgerMatch.record.amount : null,
+    bankMatchId: r.bankMatch && r.bankMatch.record ? r.bankMatch.record.externalId : null,
+    bankMatchMethod: r.bankMethod,
+    ledgerMatchId: r.ledgerMatch && r.ledgerMatch.record ? r.ledgerMatch.record.externalId : null,
+    ledgerMatchMethod: r.ledgerMethod,
+    signals: r.signals,
+    unresolvedReason: r.unresolvedReason,
+    evalCaseType: (groundTruth.records[r.settlement.entityId] || {}).caseType || null,
+  });
+
   const ruleRows = results
     .filter((r) => !r.needsReview)
-    .map((r) => ({
-      entityId: r.settlement.entityId,
-      entityType: r.settlement.type,
-      status: r.status,
-      confidenceTier: r.confidenceTier,
-      bankMatchId: r.bankMatch && r.bankMatch.record ? r.bankMatch.record.externalId : null,
-      bankMatchMethod: r.bankMethod,
-      ledgerMatchId: r.ledgerMatch && r.ledgerMatch.record ? r.ledgerMatch.record.externalId : null,
-      ledgerMatchMethod: r.ledgerMethod,
-      signals: r.signals,
-      unresolvedReason: r.unresolvedReason,
-      resolutionPath: 'RULE_ONLY',
-      evalCaseType: groundTruth.records[r.settlement.entityId].caseType,
-    }));
+    .map((r) => ({ ...deterministicHalf(r), resolutionPath: 'RULE_ONLY' }));
   auditDb.logResolutionsBulk(e2eRunId, ruleRows, dbPath);
 
   // An honest fake: declines everything. Always valid against the contract, so
@@ -320,7 +385,7 @@ async function main() {
       auditDb.logResolution(
         e2eRunId,
         {
-          entityId: res.entityId,
+          ...deterministicHalf(bySettlementId.get(res.entityId)),
           status: res.status,
           resolutionPath: res.outcome === 'SKIPPED_NO_CANDIDATES' ? 'LLM_SKIPPED' : 'LLM_ACCEPTED',
           llmProvider: res.provider,
@@ -328,7 +393,6 @@ async function main() {
           llmConfidence: res.confidence,
           llmReasonCodes: res.reasonCodes,
           validationReason: res.validationReason,
-          evalCaseType: (groundTruth.records[res.entityId] || {}).caseType || null,
         },
         dbPath
       );
@@ -362,7 +426,203 @@ async function main() {
   check('every record in the batch appears', results.every((r) => loggedIds.has(r.settlement.entityId)));
   check('the skipped path is exercised at all', (paths.LLM_SKIPPED || 0) > 0, JSON.stringify(paths));
 
+  // The money, tied back to what the matcher concluded about it. These are the
+  // asserts that pin which settlement field each counterparty amount is measured
+  // against — bank credits against net, ledger entries against gross, exactly as
+  // AMOUNT_FIELD_BY_SOURCE in matchEngine.js has it. File a bank amount against
+  // gross and the dashboard would show a red delta of fee + tax on every clean
+  // record while every other check in this file still passed.
+  const e2eRows = auditDb.getAuditRows(e2eRunId, dbPath);
+  check(
+    'every row carries its waterfall, escalated ones included',
+    e2eRows.length > 0 && e2eRows.every((r) => r.gross_amount !== null && r.net_amount !== null),
+    `${e2eRows.filter((r) => r.net_amount === null).length} of ${e2eRows.length} missing a net`
+  );
+
+  const amountMismatch = (r) => {
+    const src = bySettlementId.get(r.entity_id);
+    const signals = r.signals_json ? JSON.parse(r.signals_json) : [];
+    if (
+      r.bank_amount !== null &&
+      signals.includes('AMOUNT_DISAGREES_BANK') !== (r.bank_amount !== r.net_amount)
+    ) {
+      return `${r.entity_id}: bank ${r.bank_amount} vs net ${r.net_amount}, signals ${signals.join('|')}`;
+    }
+    if (
+      r.ledger_amount !== null &&
+      signals.includes('AMOUNT_DISAGREES_LEDGER') !== (r.ledger_amount !== r.gross_amount)
+    ) {
+      return `${r.entity_id}: ledger ${r.ledger_amount} vs gross ${r.gross_amount}, signals ${signals.join('|')}`;
+    }
+    const matcherBank = src && src.bankMatch && src.bankMatch.record ? src.bankMatch.record.amount : null;
+    if (r.bank_amount !== matcherBank) {
+      return `${r.entity_id}: trail says bank ${r.bank_amount}, matcher says ${matcherBank}`;
+    }
+    return null;
+  };
+  const firstBadAmount = e2eRows.map(amountMismatch).find(Boolean) || null;
+  check('stored amounts agree with the signals the matcher raised', firstBadAmount === null, firstBadAmount);
+
+  // A batch with no disagreement in it would let a broken delta pass unnoticed,
+  // so assert the fixture actually contains one to measure.
+  const disagreements = e2eRows.filter((r) => (r.signals_json || '').includes('AMOUNT_DISAGREES')).length;
+  check('the batch contains at least one amount disagreement', disagreements > 0, String(disagreements));
+  check(
+    'an unmatched side stores null rather than zero end to end',
+    e2eRows.some((r) => r.bank_amount === null) && !e2eRows.some((r) => r.bank_amount === 0),
+    `${e2eRows.filter((r) => r.bank_amount === null).length} null, ${e2eRows.filter((r) => r.bank_amount === 0).length} zero`
+  );
+
   auditDb.finishRun(e2eRunId, { status: 'complete' }, dbPath);
+
+  // ---------------------------------------------------------------------------
+  console.log('\n--- G. the additive migration on a pre-money database ---');
+  // ---------------------------------------------------------------------------
+  // Everything above this ran against a database this process created, where
+  // `CREATE TABLE` did all the work and migrate() had nothing to do. That is the
+  // one shape of database this change cannot break. The shape it can break is the
+  // one a demo actually has on disk: written before the money columns existed, so
+  // `CREATE TABLE IF NOT EXISTS` is a no-op and the columns reach the file only if
+  // migrate() puts them there.
+  const OLD_SCHEMA = `
+CREATE TABLE runs (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  started_at    TEXT NOT NULL,
+  finished_at   TEXT,
+  ingest_mode   TEXT NOT NULL,
+  source        TEXT NOT NULL,
+  batch_size    INTEGER,
+  seed          INTEGER,
+  status        TEXT NOT NULL DEFAULT 'running',
+  summary_json  TEXT,
+  error         TEXT
+);
+CREATE TABLE audit_log (
+  id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+  run_id               INTEGER NOT NULL REFERENCES runs(id),
+  entity_id            TEXT NOT NULL,
+  entity_type          TEXT,
+  status               TEXT NOT NULL,
+  confidence_tier      TEXT,
+  bank_match_id        TEXT,
+  bank_match_method    TEXT,
+  ledger_match_id      TEXT,
+  ledger_match_method  TEXT,
+  signals_json         TEXT,
+  unresolved_reason    TEXT,
+  resolution_path      TEXT NOT NULL,
+  llm_provider         TEXT,
+  llm_decision         TEXT,
+  llm_candidate_id     TEXT,
+  llm_confidence       REAL,
+  llm_reason_codes     TEXT,
+  llm_raw_reason_codes TEXT,
+  validation_reason    TEXT,
+  validation_warnings  TEXT,
+  eval_case_type       TEXT,
+  eval_verdict         TEXT,
+  created_at           TEXT NOT NULL
+);
+`;
+
+  const legacy = new Database(legacyDbPath);
+  legacy.exec(OLD_SCHEMA);
+  legacy
+    .prepare(
+      `INSERT INTO runs (started_at, ingest_mode, source, status)
+       VALUES ('2026-09-01T00:00:00.000Z', 'fixture', 'synthetic', 'complete')`
+    )
+    .run();
+  legacy
+    .prepare(
+      `INSERT INTO audit_log (run_id, entity_id, status, resolution_path, created_at)
+       VALUES (1, 'pay_LEGACY1', 'FULLY_MATCHED', 'RULE_ONLY', '2026-09-01T00:00:01.000Z')`
+    )
+    .run();
+  const legacyColumns = legacy.pragma('table_info(audit_log)').map((c) => c.name);
+  legacy.close();
+  check('the fixture really is a pre-money database', legacyColumns.length === 24, String(legacyColumns.length));
+  check(
+    'the fixture has none of the new columns',
+    auditDb.ADDED_COLUMNS.every(([, column]) => !legacyColumns.includes(column))
+  );
+
+  const migrated = auditDb.getDb(legacyDbPath);
+  const migratedColumns = migrated.pragma('table_info(audit_log)').map((c) => c.name);
+  check(
+    'every declared column is added',
+    auditDb.ADDED_COLUMNS.every(([, column]) => migratedColumns.includes(column)),
+    auditDb.ADDED_COLUMNS.filter(([, c]) => !migratedColumns.includes(c)).map(([, c]) => c).join(',')
+  );
+  check(
+    'the migrated table has the same columns as a fresh one',
+    migratedColumns.length === tableCols.length && tableCols.every((c) => migratedColumns.includes(c)),
+    `${migratedColumns.length} migrated vs ${tableCols.length} fresh`
+  );
+  // ADD COLUMN appends, so a migrated database's column ORDER differs from a fresh
+  // one's — which is fine only because every reader here addresses columns by name.
+  // Anything parsing the CSV by position would need the header, and it has one.
+  check(
+    'column order is not assumed to be stable',
+    migratedColumns.join(',') !== tableCols.join(','),
+    'orders match, so this assert no longer proves anything'
+  );
+
+  // The whole point of ADD COLUMN over a rebuild: the history is still there.
+  const legacyRow = auditDb.getAuditRows(1, legacyDbPath)[0];
+  check('the pre-existing row survived', legacyRow && legacyRow.entity_id === 'pay_LEGACY1');
+  check(
+    'a row written before the addition reads back null, not zero',
+    auditDb.ADDED_COLUMNS.every(([, column]) => legacyRow[column] === null),
+    auditDb.ADDED_COLUMNS.filter(([, c]) => legacyRow[c] !== null).map(([, c]) => c).join(',')
+  );
+  check('the old run row survived', auditDb.getRun(1, legacyDbPath).ingest_mode === 'fixture');
+
+  // And the failure this whole section exists to catch: an insert naming a column
+  // that only migrate() could have created.
+  auditDb.logResolution(
+    1,
+    {
+      entityId: 'pay_AFTER_MIGRATION',
+      status: 'FULLY_MATCHED',
+      resolutionPath: 'RULE_ONLY',
+      settlementUtr: 'UTR0000000001',
+      grossAmount: 100000,
+      fee: 0,
+      tax: 0,
+      netAmount: 100000,
+      bankAmount: 100000,
+      ledgerAmount: null,
+    },
+    legacyDbPath
+  );
+  const [, afterRow] = auditDb.getAuditRows(1, legacyDbPath);
+  check(
+    'an insert with amounts succeeds against a migrated table',
+    afterRow && afterRow.entity_id === 'pay_AFTER_MIGRATION'
+  );
+  check(
+    'the amounts round-trip through the added columns',
+    afterRow.net_amount === 100000 && afterRow.fee === 0 && afterRow.ledger_amount === null,
+    `${afterRow.net_amount}/${afterRow.fee}/${afterRow.ledger_amount}`
+  );
+  check(
+    'the migrated export carries the money headers',
+    auditDb.exportAuditCsv(1, legacyDbPath).split('\n')[0].includes('bank_amount')
+  );
+
+  // Re-opening must not try to add the columns a second time: ALTER TABLE ADD
+  // COLUMN on an existing name throws, so an unguarded migrate() would turn every
+  // run after the first into a crash on startup.
+  auditDb.closeDb(legacyDbPath);
+  let reopened = true;
+  try {
+    auditDb.getDb(legacyDbPath);
+  } catch (err) {
+    reopened = err.message;
+  }
+  check('migrate is idempotent across reopens', reopened === true, String(reopened));
+  check('and the migrated rows are still there', auditDb.getAuditRows(1, legacyDbPath).length === 2);
 
   // ---------------------------------------------------------------------------
   console.log('\n--- Day 4 audit trail summary ---');

@@ -60,8 +60,19 @@ function auditRowFromResult(r, gt, extra) {
   return {
     entityId: r.settlement.entityId,
     entityType: r.settlement.type,
+    settlementUtr: r.settlement.settlementUtr,
     status: r.status,
     confidenceTier: r.confidenceTier,
+    // The money from all three sources, in paise. The signals already NAME a
+    // disagreement (AMOUNT_DISAGREES_BANK); these columns are what let the trail
+    // say by how much. Bank and ledger amounts are null when there was no match
+    // on that side, which is a different thing from an amount of zero.
+    grossAmount: r.settlement.grossAmount,
+    fee: r.settlement.fee,
+    tax: r.settlement.tax,
+    netAmount: r.settlement.netAmount,
+    bankAmount: r.bankMatch && r.bankMatch.record ? r.bankMatch.record.amount : null,
+    ledgerAmount: r.ledgerMatch && r.ledgerMatch.record ? r.ledgerMatch.record.amount : null,
     bankMatchId: r.bankMatch && r.bankMatch.record ? r.bankMatch.record.externalId : null,
     // Method, not just id: for a finance reviewer the difference between
     // EXACT_UTR and AMOUNT_DATE_PROXIMITY is the difference between certain and

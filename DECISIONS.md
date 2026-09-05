@@ -225,7 +225,7 @@ not stubbed out and hoped for.
 
 ### Consequences
 
-- `npm test` runs six suites and 336 assertions — 318 of them printed as `OK` lines, the adapter and
+- `npm test` runs six suites and 359 assertions — 341 of them printed as `OK` lines, the adapter and
   matcher suites asserting through `node:assert` instead — with **no network access and no API keys**.
   A flaky provider or a missing key cannot break the build.
 - The live path is verified against real test-mode credentials: `npm run capture-fixture`
@@ -312,10 +312,10 @@ module that deliberately knows nothing about its readers.
 ### Consequences
 
 - Zero new dependencies. `package.json` still lists `better-sqlite3`, `dotenv`, `razorpay`.
-- 93 asserts in [scripts/verifyDashboard.js](scripts/verifyDashboard.js), taking `npm test` to 336
-  assertions across six suites. All but one section drives the exported handler with a stub `req`/`res`
-  and binds no port; section F binds `127.0.0.1:0` once and makes three real requests, because a router
-  that is correct in isolation and never actually served is not a dashboard.
+- 93 asserts in [scripts/verifyDashboard.js](scripts/verifyDashboard.js), the sixth suite in a
+  `npm test` that now runs 359 assertions. All but one section drives the exported handler with a stub
+  `req`/`res` and binds no port; section F binds `127.0.0.1:0` once and makes three real requests,
+  because a router that is correct in isolation and never actually served is not a dashboard.
 - `null` and `[]` survive the trip to the client. `parseJsonColumns` parses the four JSON columns but
   leaves `null` as `null`, so the `jsonOrNull` distinction the trail is careful about (see ADR-004)
   is not quietly flattened on the way out. Asserted per shape, in both directions.
@@ -335,6 +335,11 @@ module that deliberately knows nothing about its readers.
   record total exactly, and `pipeline.leftForHuman` / `endToEndCoverage` appear only in the labelled
   scorecard. Two numbers that disagree are two different questions; showing both without saying which
   is which is how a dashboard starts lying.
+- The amount column and its per-side delta cue were added after this ADR was written, and they did not
+  bend the read-only property: they are seven more columns on the trail, carried out through the same
+  GET, with no new route and no new verb. See
+  [§ What putting the money on screen changed](#what-putting-the-money-on-screen-changed--5-september-2026)
+  for why the bank is compared to net and the ledger to gross.
 
 ### Where it lives
 
@@ -388,7 +393,7 @@ The build is frozen here. Day 5 is a buffer for the demo recording and submissio
 | Read-only dashboard over the trail (ADR-005) | Shipped, `verify-dashboard` |
 | ADRs + README | Shipped, this file |
 
-`npm test` is 336 assertions across six suites (318 printed as `OK` lines), no network access, no API
+`npm test` is 359 assertions across six suites (341 printed as `OK` lines), no network access, no API
 keys. That is the gate, and it passes.
 
 ### What is deliberately out, and stays out
@@ -436,13 +441,73 @@ defect**, which is the headline. Three things did change, all under the rule abo
   exist left as a comment. Proof it was dead: the regenerated corpus is byte-identical.
 - **Two documentation claims that were wrong in this repo's own favour.** `npm test` was described as
   "318 asserts across six suites" — 318 is the count of printed `OK` lines and it comes from four of
-  them, the adapter and matcher asserting through `node:assert` instead. The real figure is 336 across
-  six. Separately, the third deviation from the original plan — **no fuzzy-matching library** — had no
-  line anywhere calling it deliberate, while the other two each had a paragraph. Both fixed; see
+  them, the adapter and matcher asserting through `node:assert` instead. The real figure at that point
+  was 336 across six. Separately, the third deviation from the original plan — **no fuzzy-matching
+  library** — had no line anywhere calling it deliberate, while the other two each had a paragraph.
+  Both fixed; see
   [README § Deviations from the original architecture](README.md#deviations-from-the-original-architecture).
 
 Nothing in the matcher, the gate, the trail or the dashboard was touched. `npm test` after the pass:
-336 assertions, exit 0.
+336 assertions, exit 0. The section below is what moved it to 359 later the same day.
+
+### What putting the money on screen changed — 5 September 2026
+
+Rehearsing the demo surfaced an omission: the dashboard could say a settlement's bank amount
+*disagreed* and could not say **by how much**. The signals had always carried
+`AMOUNT_DISAGREES_BANK` / `AMOUNT_DISAGREES_LEDGER`, so the fact was never lost — but a reconciliation
+tool whose exception view omits the number under dispute sends the reviewer back to SQL, which is the
+workflow this project exists to remove. That is a storage gap, not a rendering one: `audit_log` had 24
+columns and not one of them was an amount.
+
+The two kinds of change here are labelled rather than blended: the focus bug is a defect and falls
+under the exception above, while the amount column is **new feature work admitted on the last day by an
+explicit scope call**, not a bug fix wearing a bug's clothes. It is recorded that way rather than
+justified backwards, and both were held to the same rule — nothing shipped without an assert that
+would have caught its absence.
+
+- **Seven columns, one additive migration.** `settlement_utr`, `gross_amount`, `fee`, `tax`,
+  `net_amount`, `bank_amount`, `ledger_amount` take the table from 24 columns to 31, integer paise
+  throughout, formatted to rupees only in the view. `CREATE TABLE IF NOT EXISTS` is a no-op against an
+  existing table, so the schema addition needed an explicit `ADDED_COLUMNS` list and a `migrate()` that
+  runs `ALTER TABLE ADD COLUMN` per missing column — otherwise the columns exist in
+  [src/db/auditDb.js](src/db/auditDb.js) and not on disk, and the first insert fails. That break only
+  ever shows up on an upgrade, never on a fresh clone, which is precisely the class a fresh-database
+  test cannot see; hence a new section in the suite that builds a **pre-money 24-column database**,
+  migrates it, and asserts the round trip both ways. The real `data/audit.db` was one: four prior runs,
+  367 rows, migrated in place with every old row reading back `null`.
+- **`?? null`, never `|| null`.** A zero amount is a fact — a waived fee, zero tax — and `||` would
+  file it as "not recorded". The same care the trail already took over `jsonOrNull`'s `null` versus
+  `[]` (ADR-004) applies to money, and both directions are asserted. An unmatched counterparty stores
+  `null` and renders as an em dash, not as a zero nobody measured.
+- **The delta cue has two baselines, and getting that wrong was the defect worth recording.** The first
+  cut compared *both* counterparty amounts against `net_amount`. The matcher does not:
+  `AMOUNT_FIELD_BY_SOURCE` in [src/matcher/matchEngine.js](src/matcher/matchEngine.js) is
+  `{ bank: 'netAmount', ledger: 'grossAmount' }`, because a bank credits the net while a ledger records
+  the gross order value raised before fees and tax. Comparing both to net would have painted a red
+  delta on all 92 records that have a ledger match — 82 of them exactly fee + tax, the other 10 the
+  synthetic corpus's deliberate waterfall mismatches — against the 3 real disagreements the fixed
+  version finds, and the drawer would have labelled agreeing records as disagreements. Fixed by giving
+  each side its own baseline and labelling the drawer rows `vs net` / `vs gross`, so any red in that
+  column is a real money problem rather than arithmetic the reader has to undo. The covering assert is a
+  biconditional: for every row, `AMOUNT_DISAGREES_BANK` is present **iff** `bank_amount !== net_amount`,
+  and the ledger signal iff `ledger_amount !== gross_amount` — it pins the pairing rather than the
+  numbers, so it fails if either side is ever compared to the wrong field again.
+- **One real accessibility defect, found the same way.** `closeDrawer()` called `renderTable()`, which
+  destroyed the button that had opened the drawer, so focus fell to `<body>` and the next Tab restarted
+  from the top of the page. Rows carry a `data-row-id` now and focus is restored to the opening row's
+  button by id; the Escape handler is guarded so it only closes when focus is inside the drawer or on
+  `<body>`, which keeps Escape-while-typing in the search box from stealing the caret.
+- **The gate moved with it.** [scripts/verifyAuditDb.js](scripts/verifyAuditDb.js) goes 61 → 84 checks,
+  taking `npm test` to 359 assertions across the same six suites, exit 0. One stale assert was retired
+  rather than bumped: the CSV width check had a hard-coded `24`, and `toCsv` derives its columns from
+  `Object.keys(row)`, so the claim that matters is "the export covers what the table has" — it reads
+  the width from `PRAGMA table_info` now, with the seven new columns also named explicitly, because a
+  set comparison passes when the export and the table are wrong together.
+
+The client remains the one layer with no executable coverage — there is no jsdom in this project and
+`verify-dashboard` only reaches the front end for content type and file existence, so every claim above
+about rendering, focus and search was verified in the browser instead. Named here rather than left for
+a reviewer to notice.
 
 ### The two things a freeze here explicitly does not claim
 

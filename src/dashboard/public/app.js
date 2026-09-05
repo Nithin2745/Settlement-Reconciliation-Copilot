@@ -9,9 +9,15 @@
 //      that came from a bank narration and an LLM response; innerHTML on that
 //      input is how a viewer becomes an injection surface.
 //   2. Every number on the page is traceable to one field of the JSON the API
-//      returned. Nothing is re-derived client-side except the percentages, and
-//      the partition tiles are computed from byResolutionPath alone so they add
-//      up to the record count exactly.
+//      returned. The only things re-derived client-side are the percentages and
+//      the amount deltas — and a delta is the subtraction of two fields that are
+//      both on the page themselves, in the drawer, so it can be checked by eye
+//      rather than trusted. The partition tiles are computed from
+//      byResolutionPath alone so they add up to the record count exactly.
+//
+// Money is stored in the trail as integer paise and rendered as rupees. Null and
+// zero are different answers everywhere it appears: a null bank amount means no
+// bank line was matched, a zero delta means one was and the money agreed.
 
 // Order is the pipeline's own order, not alphabetical: rules first, then the
 // escalation outcomes in decreasing degree of resolution.
@@ -41,6 +47,12 @@ const PATH_BLURB = {
   LLM_ERROR: 'both providers failed for this record',
   LLM_SKIPPED: 'no candidate to offer, so no call was made',
 };
+
+// Must equal the number of <th> in index.html: it is the colSpan of both
+// empty-state cells, and a table whose empty row spans the wrong width breaks
+// visibly while every test still passes. Named once so adding a column is one
+// edit here and one in the markup, not a hunt for stray literals.
+const COLUMN_COUNT = 10;
 
 const state = {
   runs: [],
@@ -75,6 +87,52 @@ function pct(value, digits = 1) {
 function num(value) {
   if (value === null || value === undefined) return '—';
   return String(value);
+}
+
+// Amounts live in the trail as integer paise — the only sane way to hold money in
+// a database column — and have to reach a reviewer as rupees, which is the only
+// way money gets read. Negatives are real, not errors: a refund or a transfer
+// settles as money out.
+const RUPEES = new Intl.NumberFormat('en-IN', {
+  style: 'currency',
+  currency: 'INR',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+function money(paise) {
+  if (paise === null || paise === undefined || paise === '') return '—';
+  const n = Number(paise);
+  if (!Number.isFinite(n)) return '—';
+  return RUPEES.format(n / 100);
+}
+
+// A delta's sign is the whole point — "the bank credited ₹6,503 MORE than the
+// settlement claimed" and "₹6,503 less" are different investigations — so the
+// sign is rendered explicitly rather than left to the formatter's minus.
+function signedMoney(paise) {
+  const n = Number(paise);
+  if (!Number.isFinite(n)) return '—';
+  const sign = n > 0 ? '+' : n < 0 ? '−' : '';
+  return sign + RUPEES.format(Math.abs(n) / 100);
+}
+
+/**
+ * What one source said versus the settlement field it is supposed to agree with,
+ * or null when there is nothing to compare. Null is not zero here: no bank match
+ * means the question was never asked, while a zero delta means it was asked and
+ * the money agreed.
+ *
+ * Which field is the baseline is the caller's business, and it is not the same for
+ * both sides — see amountCell().
+ */
+function delta(baseline, stated) {
+  if (baseline === null || baseline === undefined) return null;
+  if (stated === null || stated === undefined) return null;
+  const a = Number(baseline);
+  const b = Number(stated);
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
+  return b - a;
 }
 
 function shortTime(iso) {
@@ -154,6 +212,9 @@ function withHaystack(row) {
   const parts = [
     row.entity_id,
     row.entity_type,
+    // The search box has always offered "UTR" in its placeholder. Until the trail
+    // stored one, that promise silently matched nothing.
+    row.settlement_utr,
     row.status,
     row.confidence_tier,
     row.bank_match_id,
@@ -213,7 +274,7 @@ function renderEmpty() {
   clear($('scorecards'));
   const row = el('tr');
   const cell = el('td', 'empty', 'No runs in the audit trail yet.');
-  cell.colSpan = 9;
+  cell.colSpan = COLUMN_COUNT;
   row.appendChild(cell);
   clear($('rows-body')).appendChild(row);
   $('row-count').textContent = '';
@@ -491,6 +552,52 @@ function pill(value) {
   return el('span', `pill pill-${value}`, value);
 }
 
+/**
+ * Net settled amount, with a disagreement called out underneath it.
+ *
+ * Each source is compared against the settlement field it is supposed to match,
+ * and that field is NOT the same for both: a bank credit should equal the net
+ * settled, a ledger entry should equal the gross order value raised before fees
+ * and tax. This mirrors AMOUNT_FIELD_BY_SOURCE in src/matcher/matchEngine.js.
+ * Comparing both sides to net would print a red delta of exactly fee + tax on
+ * every clean record — the opposite of the point, which is that any red in this
+ * column is a real money problem and not arithmetic the reader has to undo.
+ *
+ * The delta line appears only when a counterparty amount exists AND differs, so
+ * the common case stays one line and a scan down the column finds the money
+ * problems rather than reading 120 rows of confirmation. "Was there a match at
+ * all" is already answered by the adjacent Bank/Ledger match columns.
+ *
+ * Bank wins when both sides disagree: the bank is where money actually moved, the
+ * ledger is what someone intended to invoice. The drawer shows both in full.
+ *
+ * The cue is in this cell rather than tinting the whole <tr> on purpose — rows are
+ * already tinted by ground-truth verdict, and two tint systems on one row make
+ * both unreadable.
+ */
+function amountCell(row) {
+  const cell = el('td', 'amount');
+  cell.appendChild(el('span', 'amount-net', money(row.net_amount)));
+
+  const bankDelta = delta(row.net_amount, row.bank_amount);
+  const ledgerDelta = delta(row.gross_amount, row.ledger_amount);
+  const [side, value, stated, baseline, baselineLabel] =
+    bankDelta !== null && bankDelta !== 0
+      ? ['bank', bankDelta, row.bank_amount, row.net_amount, 'net']
+      : ledgerDelta !== null && ledgerDelta !== 0
+        ? ['ledger', ledgerDelta, row.ledger_amount, row.gross_amount, 'gross']
+        : [null, null, null, null, null];
+
+  if (side) {
+    const note = el('span', 'amount-delta');
+    note.appendChild(el('span', 'delta-side', side));
+    note.appendChild(el('span', null, `Δ ${signedMoney(value)}`));
+    note.title = `${side} says ${money(stated)}, this settlement's ${baselineLabel} is ${money(baseline)}`;
+    cell.appendChild(note);
+  }
+  return cell;
+}
+
 function renderTable() {
   const body = clear($('rows-body'));
   const rows = visibleRows();
@@ -503,7 +610,7 @@ function renderTable() {
   if (!rows.length) {
     const tr = el('tr');
     const td = el('td', 'empty', 'No records match these filters.');
-    td.colSpan = 9;
+    td.colSpan = COLUMN_COUNT;
     tr.appendChild(td);
     body.appendChild(tr);
     return;
@@ -516,16 +623,20 @@ function buildRow(row) {
   if (state.selectedId === row.id) tr.classList.add('is-selected');
 
   // A real <button>, not a click handler on the <tr>: the whole table stays
-  // reachable by keyboard and announces what activating it does.
+  // reachable by keyboard and announces what activating it does. The row id rides
+  // along in a data attribute so closeDrawer() can find this exact button again
+  // after the table has been rebuilt underneath it.
   const first = el('td');
   const open = el('button', 'cell-btn mono', row.entity_id);
   open.type = 'button';
+  open.dataset.rowId = String(row.id);
   open.setAttribute('aria-label', `Show the full trail for ${row.entity_id}`);
   open.addEventListener('click', () => openDrawer(row.id));
   first.appendChild(open);
   first.appendChild(el('span', 'method', row.entity_type));
   tr.appendChild(first);
 
+  tr.appendChild(amountCell(row));
   tr.appendChild(el('td', null, row.status));
   tr.appendChild(el('td', `tier-${row.confidence_tier}`, row.confidence_tier));
   tr.appendChild(matchCell(row.bank_match_id, row.bank_match_method));
@@ -583,6 +694,37 @@ function openDrawer(rowId) {
 
   $('drawer-h').textContent = row.entity_id;
   const body = clear($('drawer-body'));
+
+  // Money first. Everything below this is about which records were tied together;
+  // this is the only section that says whether the amounts actually agreed, which
+  // is the question the whole tool exists to answer.
+  const cash = section(body, 'Money — what each source said');
+  kv(cash, 'Settlement UTR', row.settlement_utr || '—');
+  kv(cash, 'Gross', money(row.gross_amount));
+  kv(cash, 'Fee', money(row.fee));
+  kv(cash, 'Tax', money(row.tax));
+  kv(cash, 'Net settled', money(row.net_amount));
+
+  // Baselines differ per side, as in amountCell(): the bank credits the net, the
+  // ledger records the gross. The label names which one it was measured against so
+  // the number can be checked against the four rows directly above it by eye.
+  for (const [label, stated, baseline, baselineLabel] of [
+    ['Bank credited', row.bank_amount, row.net_amount, 'net'],
+    ['Ledger recorded', row.ledger_amount, row.gross_amount, 'gross'],
+  ]) {
+    const d = delta(baseline, stated);
+    if (d === null) {
+      kv(cash, label, stated === null || stated === undefined ? 'no match on this side' : money(stated));
+      continue;
+    }
+    kv(cash, label, money(stated));
+    kv(
+      cash,
+      `vs ${baselineLabel}`,
+      d === 0 ? 'agrees exactly' : signedMoney(d),
+      d === 0 ? 'good' : 'bad'
+    );
+  }
 
   const match = section(body, 'Deterministic match');
   kv(match, 'Status', row.status);
@@ -655,9 +797,27 @@ function openDrawer(rowId) {
 }
 
 function closeDrawer() {
-  $('drawer').hidden = true;
+  const drawer = $('drawer');
+  if (drawer.hidden) return;
+
+  // renderTable() below destroys the button that opened the drawer, so without a
+  // deliberate hand-off a keyboard user loses their place in a 120-row table on
+  // every close: focus falls to <body> and the next Tab restarts from the top of
+  // the page. Remember which row to go back to before the id is cleared.
+  const returnTo = state.selectedId;
+  // ...but only take focus if focus is somewhere that is about to disappear.
+  // Escape also closes the drawer while the operator is typing in the search box,
+  // and yanking the caret out of that field would be worse than the bug.
+  const shouldRestore =
+    drawer.contains(document.activeElement) || document.activeElement === document.body;
+
+  drawer.hidden = true;
   state.selectedId = null;
   renderTable();
+
+  if (!shouldRestore || !Number.isInteger(returnTo)) return;
+  const button = $('rows-body').querySelector(`.cell-btn[data-row-id="${returnTo}"]`);
+  if (button) button.focus();
 }
 
 /* ---------- wiring ---------- */

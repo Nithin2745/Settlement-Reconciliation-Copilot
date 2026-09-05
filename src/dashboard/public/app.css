@@ -548,6 +548,43 @@ tbody tr.verdict-MISSED {
   color: var(--muted);
 }
 
+/* Money. Tabular figures and right alignment so a column of amounts can be
+   scanned for magnitude — proportional digits make ₹1,111.11 narrower than
+   ₹8,888.88 and the decimal points stop lining up, which is the whole reason a
+   ledger has ever been set in a monospaced hand. */
+td.amount {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+thead th.col-amount {
+  text-align: right;
+}
+
+.amount-net {
+  display: block;
+}
+
+/* The disagreement cue. Only rendered when a counterparty amount exists and
+   differs, so any red in this column is a real money problem rather than
+   decoration — see amountCell() in app.js. */
+.amount-delta {
+  display: block;
+  margin-top: 2px;
+  font-size: 10.5px;
+  color: var(--bad);
+}
+
+.delta-side {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 9.5px;
+  margin-right: 4px;
+}
+
 /* ---------- detail drawer ---------- */
 
 .drawer {
